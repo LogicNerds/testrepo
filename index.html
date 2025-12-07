@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wholesale Order Form</title>
+    
+    <!-- Prevent browser caching to ensure fresh data -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- jsPDF Library for PDF Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <style>
+        /* ============================================
+           GLOBAL STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* ============================================
+           BRAND HEADER
+           ============================================ */
+        .brand-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .brand-logo {
+            max-height: 80px;
+            max-width: 200px;
+        }
+        
+        .brand-logo-placeholder {
+            padding: 20px 40px;
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            border-radius: 4px;
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .brand-name {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c5f2d;
+        }
+        
+        /* ============================================
+           STORE INFO SECTION
+           ============================================ */
+        .store-info {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+        }
+        
+        .store-info h2 {
+            margin-bottom: 15px;
+            color: #2c5f2d;
+            font-size: 20px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .form-group label.required::after {
+            content: " *";
+            color: #d32f2f;
+        }
+        
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2c5f2d;
+        }
+        
+        .form-group input:read-only {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        
+        /* ============================================
+           CATEGORY SECTIONS
+           ============================================ */
+        .category-section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .category-header {
+            background: #2c5f2d;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .category-header:hover {
+            background: #244d24;
+        }
+        
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .chevron {
+            transition: transform 0.3s;
+            font-size: 20px;
+        }
+        
+        .chevron.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .category-subtotal {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .category-body {
+            padding: 20px;
+        }
+        
+        .category-body.collapsed {
+            display: none;
+        }
+        
+        /* ============================================
+           PRODUCT TABLE
+           ============================================ */
+        .product-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .product-table thead {
+            background: #f5f5f5;
+        }
+        
+        .product-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #555;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        .product-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            vertical-align: middle;
+        }
+        
+        .product-table tbody tr:hover {
+            background: #fafafa;
+        }
+        
+        .product-image {
+            width: 75px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .product-image-placeholder {
+            width: 75px;
+            height: 75px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #999;
+            border: 1px solid #ddd;
+        }
+        
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .product-details {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .product-meta {
+            font-size: 12px;
+            color: #777;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .product-meta span {
+            display: inline-block;
+        }
+        
+        .quantity-input {
+            width: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .quantity-input:focus {
+            outline: none;
+            border-color: #2c5f2d;
+        }
+        
+        .quantity-input.invalid {
+            border-color: #d32f2f;
+            background: #ffebee;
+        }
+        
+        .validation-message {
+            display: block;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #d32f2f;
+        }
+        
+        .line-total {
+            font-weight: 600;
+            color: #2c5f2d;
+        }
+        
+        /* ============================================
+           TOTALS & ACTIONS
+           ============================================ */
+        .totals-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        
+        .grand-total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c5f2d;
+            padding: 15px 0;
+            border-top: 2px solid #2c5f2d;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #2c5f2d;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #244d24;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(44, 95, 45, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .last-updated {
+            font-size: 13px;
+            color: #777;
+            font-style: italic;
+        }
+        
+        .error-message {
+            background: #ffebee;
+            color: #d32f2f;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-top: 15px;
+            display: none;
+            border-left: 4px solid #d32f2f;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        /* ============================================
+           LOADING STATE
+           ============================================ */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2c5f2d;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .brand-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .brand-name {
+                font-size: 24px;
+            }
+            
+            .product-table {
+                font-size: 13px;
+            }
+            
+            .product-table th,
+            .product-table td {
+                padding: 8px 4px;
+            }
+            
+            .product-image,
+            .product-image-placeholder {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .quantity-input {
+                width: 60px;
+            }
+            
+            .grand-total {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Loading order form...
+        </div>
+        <div id="app" style="display: none;"></div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        
+        /**
+         * REPLACE THIS URL WITH YOUR PUBLISHED GOOGLE SHEET CSV URL
+         * 
+         * To get the URL:
+         * 1. In your Google Sheet, go to File > Share > Publish to web
+         * 2. Select the sheet tab you want to publish
+         * 3. Choose "Comma-separated values (.csv)" as the format
+         * 4. Click "Publish" and copy the URL
+         * 5. Paste the URL below
+         * 
+         * Your sheet should be structured as:
+         * - Row 1: Headers (Brand_Name, Brand_Logo_URL, Case_Flower, Case_Prerolls, etc.)
+         * - Row 2: Config values
+         * - Row 3: Blank
+         * - Row 4: Product headers (Category, Product Name, Size, Type, Potency, Unit Price, Image URL)
+         * - Row 5+: Product data
+         */
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwyZdNO2JX0LtbCckZguBKBKG3Q6HgTOfkyem73m88GCQA_KyPeq-ifI3-rz9b9kvMZ6okwdNDDbrK/pub?output=csv";
+        
+        // ============================================
+        // GLOBAL STATE
+        // ============================================
+        
+        let products = [];
+        let config = {};
+        let caseSizes = {}; // Category name -> case size (integer)
+        let collapsedCategories = new Set(); // Track which categories are collapsed
+        
+        // ============================================
+        // CSV PARSING
+        // ============================================
+        
+        /**
+         * Fetch CSV data from a URL with fallback CORS proxies
+         * @param {string} url - The URL to fetch
+         * @returns {Promise<string>} The CSV text
+         */
+        async function fetchCsv(url) {
+            // Add cache-busting timestamp to force fresh data from Google Sheets
+            const separator = url.includes('?') ? '&' : '?';
+            const cacheBustedUrl = `${url}${separator}timestamp=${Date.now()}`;
+            
+            // List of CORS proxies to try in order
+            const corsProxies = [
+                (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+                (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+            ];
+            
+            // Try each proxy in sequence
+            for (let i = 0; i < corsProxies.length; i++) {
+                try {
+                    const proxyUrl = corsProxies[i](cacheBustedUrl);
+                    console.log(`Attempting to fetch via proxy ${i + 1}/${corsProxies.length}...`);
+                    
+                    const response = await fetch(proxyUrl);
+                    
+                    if (response.ok) {
+                        console.log(`Success with proxy ${i + 1}`);
+                        return await response.text();
+                    }
+                    
+                    console.log(`Proxy ${i + 1} returned status ${response.status}, trying next...`);
+                } catch (error) {
+                    console.log(`Proxy ${i + 1} failed: ${error.message}, trying next...`);
+                    
+                    // If this was the last proxy, throw the error
+                    if (i === corsProxies.length - 1) {
+                        throw new Error(`All CORS proxies failed. Last error: ${error.message}`);
+                    }
+                }
+            }
+            
+            throw new Error('Failed to fetch data from all available proxies');
+        }
+        
+        /**
+         * Parse CSV text into array of arrays
+         * @param {string} csvText - Raw CSV text
+         * @returns {Array<Array<string>>} Array of rows (each row is an array of values)
+         */
+        function parseCsv(csvText) {
+            const lines = csvText.trim().split('\n');
+            const data = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                const values = parseCSVLine(lines[i]);
+                data.push(values);
+            }
+            
+            return data;
+        }
+        
+        /**
+         * Parse a single CSV line, handling quoted values with commas
+         * @param {string} line - A single line from CSV
+         * @returns {Array<string>} Array of values
+         */
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim());
+            
+            return values;
+        }
+        
+        // ============================================
+        // DATA PARSING
+        // ============================================
+        
+        /**
+         * Parse the sheet data into config and products
+         * @param {Array<Array<string>>} rows - All rows from CSV
+         */
+        function parseSheetData(rows) {
+            if (rows.length < 5) {
+                throw new Error('Sheet must have at least 5 rows (config + headers + data)');
+            }
+            
+            // Row 0: Config headers (Brand_Name, Brand_Logo_URL, Case_Flower, etc.)
+            const configHeaders = rows[0];
+            
+            // Row 1: Config values
+            const configValues = rows[1];
+            
+            // Parse config
+            config = {};
+            caseSizes = {};
+            
+            for (let i = 0; i < configHeaders.length; i++) {
+                const key = configHeaders[i];
+                const value = configValues[i] || '';
+                
+                if (key && value) {
+                    config[key] = value;
+                    
+                    // Extract case sizes
+                    if (key.startsWith('Case_')) {
+                        const categoryName = key.replace('Case_', '').replace('_', ' ');
+                        const caseSize = parseInt(value, 10);
+                        if (caseSize > 0) {
+                            caseSizes[categoryName] = caseSize;
+                        }
+                    }
+                }
+            }
+            
+            // Row 2: Blank (skip)
+            
+            // Row 3: Product headers
+            const productHeaders = rows[3];
+            
+            // Row 4+: Products
+            products = [];
+            for (let i = 4; i < rows.length; i++) {
+                const row = rows[i];
+                
+                // Skip empty rows
+                if (!row[0] || row.every(cell => !cell)) continue;
+                
+                const product = {};
+                for (let j = 0; j < productHeaders.length; j++) {
+                    const header = productHeaders[j];
+                    product[header] = row[j] || '';
+                }
+                
+                // Only add if we have required fields
+                if (product['Product Name'] && product['Unit Price']) {
+                    products.push(product);
+                }
+            }
+        }
+        
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        /**
+         * Initialize the application
+         * Fetches data and builds the UI
+         */
+        async function init() {
+            try {
+                // Fetch CSV
+                const csvText = await fetchCsv(SHEET_CSV_URL);
+                
+                // Parse CSV into rows
+                const rows = parseCsv(csvText);
+                
+                // Parse into config and products
+                parseSheetData(rows);
+                
+                // Build the UI
+                buildUI();
+                
+                // Hide loading, show app
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                document.getElementById('loading').innerHTML = `
+                    <div style="color: #d32f2f;">
+                        <h3>Error Loading Data</h3>
+                        <p>${error.message}</p>
+                        <p style="font-size: 14px; margin-top: 20px;">
+                            Please make sure you have replaced the CSV URL in the code with a valid published Google Sheet URL.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+        
+        // ============================================
+        // UI BUILDING
+        // ============================================
+        
+        /**
+         * Build the complete UI
+         */
+        function buildUI() {
+            const app = document.getElementById('app');
+            
+            let html = '';
+            
+            // Brand Header
+            html += buildBrandHeader();
+            
+            // Store Info Form
+            html += buildStoreInfoForm();
+            
+            // Product Categories
+            html += buildProductCategories();
+            
+            // Totals and Actions
+            html += buildTotalsAndActions();
+            
+            app.innerHTML = html;
+            
+            // Attach event listeners
+            attachEventListeners();
+            
+            // Generate initial PO number
+            updatePONumber();
+        }
+        
+        /**
+         * Build brand header section
+         */
+        function buildBrandHeader() {
+            const brandName = config['Brand_Name'] || '[Brand Name]';
+            const logoUrl = config['Brand_Logo_URL'] || '';
+            
+            let logoHtml = '';
+            if (logoUrl) {
+                logoHtml = `<img src="${logoUrl}" alt="${brandName}" class="brand-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                           <div class="brand-logo-placeholder" style="display: none;">[Brand Logo]</div>`;
+            } else {
+                logoHtml = `<div class="brand-logo-placeholder">[Brand Logo]</div>`;
+            }
+            
+            return `
+                <div class="brand-header">
+                    <div>${logoHtml}</div>
+                    <div class="brand-name">${brandName}</div>
+                </div>
+            `;
+        }
+        
+        /**
+         * Build store information form
+         */
+        function buildStoreInfoForm() {
+            return `
+                <div class="store-info">
+                    <h2>Store Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="storeName" class="required">Store Name</label>
+                            <input type="text" id="storeName" placeholder="Enter store name">
+                        </div>
+                        <div class="form-group">
+                            <label for="contactName">Contact Name</label>
+                            <input type="text" id="contactName" placeholder="Enter contact name">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="Enter email address">
+                        </div>
+                        <div class="form-group">
+                            <label for="poNumber">PO Number</label>
+                            <input type="text" id="poNumber" readonly>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        /**
+         * Build product categories section
+         */
+        function buildProductCategories() {
+            // Group products by category
+            const categorized = {};
+            products.forEach(product => {
+                const category = product['Category'] || 'Other';
+                if (!categorized[category]) {
+                    categorized[category] = [];
+                }
+                categorized[category].push(product);
+            });
+            
+            // Define category order
+            const priorityCategories = ['Flower', 'Prerolls', 'Vapes', 'Edibles', 'Drinks'];
+            const allCategories = Object.keys(categorized);
+            
+            // Separate priority and other categories
+            const orderedCategories = [];
+            priorityCategories.forEach(cat => {
+                if (allCategories.includes(cat)) {
+                    orderedCategories.push(cat);
+                }
+            });
+            
+            // Add remaining categories in alphabetical order
+            const otherCategories = allCategories
+                .filter(cat => !priorityCategories.includes(cat))
+                .sort();
+            orderedCategories.push(...otherCategories);
+            
+            // Build HTML for each category
+            let html = '';
+            orderedCategories.forEach(category => {
+                html += buildCategorySection(category, categorized[category]);
+            });
+            
+            return html;
+        }
+        
+        /**
+         * Build a single category section
+         */
+        function buildCategorySection(category, products) {
+            const caseSize = caseSizes[category];
+            const caseSizeNote = caseSize ? ` (Multiples of ${caseSize})` : '';
+            
+            let html = `
+                <div class="category-section" data-category="${category}">
+                    <div class="category-header" onclick="toggleCategory('${category}')">
+                        <div class="category-title">
+                            <span class="chevron">▼</span>
+                            <span>${category}${caseSizeNote}</span>
+                        </div>
+                        <div class="category-subtotal" data-category-subtotal="${category}">$0.00</div>
+                    </div>
+                    <div class="category-body">
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Unit Price</th>
+                                    <th>Quantity</th>
+                                    <th>Line Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            products.forEach((product, index) => {
+                html += buildProductRow(product, category, index);
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            return html;
+        }
+        
+        /**
+         * Build a single product row
+         */
+        function buildProductRow(product, category, index) {
+            const productName = product['Product Name'] || 'Unnamed Product';
+            const size = product['Size'] || '';
+            const type = product['Type'] || '';
+            const potency = product['Potency'] || '';
+            const unitPrice = parseFloat(product['Unit Price']) || 0;
+            const imageUrl = product['Image URL'] || '';
+            const productId = `${category}-${index}`;
+            
+            // Build product metadata line
+            const metaParts = [];
+            if (size) metaParts.push(`Size: ${size}`);
+            if (type) metaParts.push(`Type: ${type}`);
+            if (potency) metaParts.push(`Potency: ${potency}`);
+            const metaHtml = metaParts.length > 0 ? 
+                `<div class="product-meta">${metaParts.map(p => `<span>${p}</span>`).join('')}</div>` : '';
+            
+            // Image HTML
+            let imageHtml = '';
+            if (imageUrl) {
+                imageHtml = `
+                    <img src="${imageUrl}" alt="${productName}" class="product-image" 
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="product-image-placeholder" style="display: none;">No Image</div>
+                `;
+            } else {
+                imageHtml = `<div class="product-image-placeholder">No Image</div>`;
+            }
+            
+            return `
+                <tr data-product-id="${productId}">
+                    <td>
+                        <div class="product-info">
+                            ${imageHtml}
+                            <div class="product-details">
+                                <div class="product-name">${productName}</div>
+                                ${metaHtml}
+                            </div>
+                        </div>
+                    </td>
+                    <td>$${unitPrice.toFixed(2)}</td>
+                    <td>
+                        <input type="number" 
+                               class="quantity-input" 
+                               id="qty-${productId}"
+                               data-product-id="${productId}"
+                               data-category="${category}"
+                               data-unit-price="${unitPrice}"
+                               data-product-name="${productName}"
+                               data-size="${size}"
+                               data-type="${type}"
+                               data-potency="${potency}"
+                               min="0" 
+                               value="0"
+                               step="1">
+                        <span class="validation-message" id="val-${productId}"></span>
+                    </td>
+                    <td class="line-total" data-line-total="${productId}">$0.00</td>
+                </tr>
+            `;
+        }
+        
+        /**
+         * Build totals and action buttons section
+         */
+        function buildTotalsAndActions() {
+            const now = new Date();
+            const timestamp = now.toLocaleString();
+            
+            return `
+                <div class="totals-section">
+                    <div class="grand-total">
+                        <span>Grand Total:</span>
+                        <span id="grandTotal">$0.00</span>
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="generatePdf()">
+                        Generate PO PDF
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshMenu()">
+                        🔄 Refresh Menu
+                    </button>
+                    <span class="last-updated">Last updated: ${timestamp}</span>
+                </div>
+                
+                <div class="error-message" id="errorMessage"></div>
+            `;
+        }
+        
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+        
+        /**
+         * Attach all event listeners
+         */
+        function attachEventListeners() {
+            // Store name input - update PO number when changed
+            const storeNameInput = document.getElementById('storeName');
+            storeNameInput.addEventListener('input', updatePONumber);
+            
+            // Quantity inputs - recalculate totals and validate
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    validateQuantity(this);
+                    recalcTotals();
+                });
+                
+                input.addEventListener('change', function() {
+                    validateQuantity(this);
+                    recalcTotals();
+                });
+            });
+        }
+        
+        // ============================================
+        // VALIDATION
+        // ============================================
+        
+        /**
+         * Validate a quantity input against case size rules
+         * @param {HTMLInputElement} input - The quantity input element
+         */
+        function validateQuantity(input) {
+            const category = input.dataset.category;
+            const caseSize = caseSizes[category];
+            const quantity = parseInt(input.value, 10) || 0;
+            const validationMsg = document.getElementById('val-' + input.dataset.productId);
+            
+            // Clear previous validation
+            input.classList.remove('invalid');
+            validationMsg.textContent = '';
+            
+            // If no case size requirement, any quantity is valid
+            if (!caseSize) return true;
+            
+            // If quantity is 0, that's always valid (not ordering)
+            if (quantity === 0) return true;
+            
+            // Check if quantity is a multiple of case size
+            if (quantity % caseSize !== 0) {
+                input.classList.add('invalid');
+                validationMsg.textContent = `Quantities for this category must be in multiples of ${caseSize}.`;
+                return false;
+            }
+            
+            return true;
+        }
+        
+        /**
+         * Validate the entire form before PDF generation
+         * @returns {Object} { valid: boolean, errors: Array<string> }
+         */
+        function validateForm() {
+            const errors = [];
+            
+            // Check store name
+            const storeName = document.getElementById('storeName').value.trim();
+            if (!storeName) {
+                errors.push('Store Name is required.');
+            }
+            
+            // Check that at least one product has quantity > 0
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            const hasItems = Array.from(quantityInputs).some(input => {
+                return parseInt(input.value, 10) > 0;
+            });
+            
+            if (!hasItems) {
+                errors.push('Please add at least one product to your order.');
+            }
+            
+            // Check for invalid quantity inputs (case size violations)
+            const invalidInputs = document.querySelectorAll('.quantity-input.invalid');
+            if (invalidInputs.length > 0) {
+                errors.push('Please fix quantity errors (highlighted in red) before generating PDF.');
+            }
+            
+            return {
+                valid: errors.length === 0,
+                errors: errors
+            };
+        }
+        
+        /**
+         * Display error messages
+         * @param {Array<string>} errors - Array of error messages
+         */
+        function showErrors(errors) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (errors.length > 0) {
+                errorDiv.innerHTML = errors.map(err => `• ${err}`).join('<br>');
+                errorDiv.classList.add('show');
+            } else {
+                errorDiv.classList.remove('show');
+            }
+        }
+        
+        // ============================================
+        // CALCULATIONS
+        // ============================================
+        
+        /**
+         * Recalculate all totals (line totals, category subtotals, grand total)
+         */
+        function recalcTotals() {
+            let grandTotal = 0;
+            
+            // Calculate line totals and category subtotals
+            const categories = {};
+            
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                const productId = input.dataset.productId;
+                const category = input.dataset.category;
+                const unitPrice = parseFloat(input.dataset.unitPrice) || 0;
+                const quantity = parseInt(input.value, 10) || 0;
+                const lineTotal = unitPrice * quantity;
+                
+                // Update line total display
+                const lineTotalElement = document.querySelector(`[data-line-total="${productId}"]`);
+                if (lineTotalElement) {
+                    lineTotalElement.textContent = `$${lineTotal.toFixed(2)}`;
+                }
+                
+                // Accumulate category subtotal
+                if (!categories[category]) {
+                    categories[category] = 0;
+                }
+                categories[category] += lineTotal;
+                
+                // Accumulate grand total
+                grandTotal += lineTotal;
+            });
+            
+            // Update category subtotals
+            Object.keys(categories).forEach(category => {
+                const subtotalElement = document.querySelector(`[data-category-subtotal="${category}"]`);
+                if (subtotalElement) {
+                    subtotalElement.textContent = `$${categories[category].toFixed(2)}`;
+                }
+            });
+            
+            // Update grand total
+            document.getElementById('grandTotal').textContent = `$${grandTotal.toFixed(2)}`;
+        }
+        
+        /**
+         * Update the PO number based on current date and store name
+         */
+        function updatePONumber() {
+            const storeName = document.getElementById('storeName').value.trim();
+            const now = new Date();
+            
+            // Format date as YYMMDD
+            const yy = String(now.getFullYear()).slice(-2);
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const dateStr = yy + mm + dd;
+            
+            // Systemize store name: remove spaces and non-alphanumeric, uppercase
+            const systemizedName = storeName
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .toUpperCase();
+            
+            const poNumber = systemizedName ? `PO-${dateStr}-${systemizedName}` : `PO-${dateStr}-`;
+            document.getElementById('poNumber').value = poNumber;
+        }
+        
+        // ============================================
+        // CATEGORY COLLAPSE/EXPAND
+        // ============================================
+        
+        /**
+         * Refresh the menu data from Google Sheets
+         */
+        function refreshMenu() {
+            // Force a hard reload to fetch fresh data
+            location.reload(true);
+        }
+        
+        /**
+         * Toggle category collapse state
+         * @param {string} category - Category name
+         */
+        function toggleCategory(category) {
+            const section = document.querySelector(`.category-section[data-category="${category}"]`);
+            if (!section) return;
+            
+            const body = section.querySelector('.category-body');
+            const chevron = section.querySelector('.chevron');
+            
+            if (collapsedCategories.has(category)) {
+                // Expand
+                body.classList.remove('collapsed');
+                chevron.classList.remove('collapsed');
+                collapsedCategories.delete(category);
+            } else {
+                // Collapse
+                body.classList.add('collapsed');
+                chevron.classList.add('collapsed');
+                collapsedCategories.add(category);
+            }
+        }
+        
+        // ============================================
+        // PDF GENERATION
+        // ============================================
+        
+        /**
+         * Generate and open PDF
+         */
+        function generatePdf() {
+            // Clear previous errors
+            showErrors([]);
+            
+            // Validate form
+            const validation = validateForm();
+            if (!validation.valid) {
+                showErrors(validation.errors);
+                return;
+            }
+            
+            // Get form data
+            const storeName = document.getElementById('storeName').value.trim();
+            const contactName = document.getElementById('contactName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const poNumber = document.getElementById('poNumber').value;
+            
+            // Get ordered items
+            const orderedItems = getOrderedItems();
+            
+            // Create PDF
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            let yPos = 20;
+            const lineHeight = 7;
+            const pageWidth = doc.internal.pageSize.width;
+            const pageHeight = doc.internal.pageSize.height;
+            const margin = 20;
+            
+            // Helper function to check if we need a new page
+            function checkPageBreak(requiredSpace) {
+                if (yPos + requiredSpace > pageHeight - 20) {
+                    doc.addPage();
+                    yPos = 20;
+                    return true;
+                }
+                return false;
+            }
+            
+            // Header - Brand Name
+            doc.setFontSize(22);
+            doc.setFont(undefined, 'bold');
+            const brandName = config['Brand_Name'] || '[Brand Name]';
+            doc.text(brandName, margin, yPos);
+            yPos += 10;
+            
+            // PO Number and Date
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString();
+            doc.text(`PO Number: ${poNumber}`, margin, yPos);
+            doc.text(`Date: ${dateStr}`, pageWidth - margin - 40, yPos);
+            yPos += 10;
+            
+            // Divider
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 8;
+            
+            // Store Information
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Store Information', margin, yPos);
+            yPos += 7;
+            
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'normal');
+            doc.text(`Store Name: ${storeName}`, margin, yPos);
+            yPos += 6;
+            if (contactName) {
+                doc.text(`Contact: ${contactName}`, margin, yPos);
+                yPos += 6;
+            }
+            if (phone) {
+                doc.text(`Phone: ${phone}`, margin, yPos);
+                yPos += 6;
+            }
+            if (email) {
+                doc.text(`Email: ${email}`, margin, yPos);
+                yPos += 6;
+            }
+            yPos += 5;
+            
+            // Divider
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 8;
+            
+            // Order Items Header
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Order Items', margin, yPos);
+            yPos += 10;
+            
+            // Group items by category
+            const itemsByCategory = {};
+            orderedItems.forEach(item => {
+                if (!itemsByCategory[item.category]) {
+                    itemsByCategory[item.category] = [];
+                }
+                itemsByCategory[item.category].push(item);
+            });
+            
+            // Order categories same as UI
+            const priorityCategories = ['Flower', 'Prerolls', 'Vapes', 'Edibles', 'Drinks'];
+            const allCategories = Object.keys(itemsByCategory);
+            const orderedCategories = [];
+            priorityCategories.forEach(cat => {
+                if (allCategories.includes(cat)) {
+                    orderedCategories.push(cat);
+                }
+            });
+            const otherCategories = allCategories
+                .filter(cat => !priorityCategories.includes(cat))
+                .sort();
+            orderedCategories.push(...otherCategories);
+            
+            let grandTotal = 0;
+            
+            // Print each category
+            orderedCategories.forEach(category => {
+                const items = itemsByCategory[category];
+                
+                // Check if we need a new page for category header
+                checkPageBreak(15);
+                
+                // Category header
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'bold');
+                doc.text(category, margin, yPos);
+                yPos += 7;
+                
+                // Table header
+                doc.setFontSize(10);
+                doc.text('Product', margin, yPos);
+                doc.text('Details', margin + 50, yPos);
+                doc.text('Unit Price', margin + 110, yPos);
+                doc.text('Qty', margin + 140, yPos);
+                doc.text('Total', margin + 160, yPos);
+                yPos += 5;
+                
+                doc.setFont(undefined, 'normal');
+                
+                let categorySubtotal = 0;
+                
+                // Print each item
+                items.forEach(item => {
+                    checkPageBreak(12);
+                    
+                    // Product name (truncated if too long)
+                    doc.text(item.productName.substring(0, 20), margin, yPos);
+                    
+                    // Product details
+                    const details = [];
+                    if (item.size) details.push(item.size);
+                    if (item.type) details.push(item.type);
+                    if (item.potency) details.push(item.potency);
+                    const detailsText = details.join(', ').substring(0, 25);
+                    doc.setFontSize(8);
+                    doc.text(detailsText, margin + 50, yPos);
+                    doc.setFontSize(10);
+                    
+                    // Pricing
+                    doc.text(`$${item.unitPrice.toFixed(2)}`, margin + 110, yPos);
+                    doc.text(String(item.quantity), margin + 140, yPos);
+                    doc.text(`$${item.lineTotal.toFixed(2)}`, margin + 160, yPos);
+                    yPos += 6;
+                    
+                    categorySubtotal += item.lineTotal;
+                });
+                
+                // Category subtotal
+                doc.setFont(undefined, 'bold');
+                yPos += 2;
+                doc.text(`${category} Subtotal:`, margin + 110, yPos);
+                doc.text(`$${categorySubtotal.toFixed(2)}`, margin + 160, yPos);
+                yPos += 8;
+                
+                grandTotal += categorySubtotal;
+                
+                doc.setFont(undefined, 'normal');
+            });
+            
+            // Grand Total
+            checkPageBreak(15);
+            yPos += 5;
+            doc.line(margin, yPos, pageWidth - margin, yPos);
+            yPos += 8;
+            
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Grand Total:', margin + 110, yPos);
+            doc.text(`$${grandTotal.toFixed(2)}`, margin + 160, yPos);
+            
+            // Footer with timestamp
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            const timestamp = now.toLocaleString();
+            doc.text(`Generated on ${timestamp}`, margin, pageHeight - 10);
+            
+            // Open PDF in new tab
+            doc.output('dataurlnewwindow');
+        }
+        
+        /**
+         * Get all ordered items (quantity > 0) with their details
+         * @returns {Array<Object>} Array of ordered items
+         */
+        function getOrderedItems() {
+            const items = [];
+            
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                const quantity = parseInt(input.value, 10) || 0;
+                if (quantity > 0) {
+                    const category = input.dataset.category;
+                    const unitPrice = parseFloat(input.dataset.unitPrice) || 0;
+                    const lineTotal = unitPrice * quantity;
+                    const productName = input.dataset.productName;
+                    const size = input.dataset.size;
+                    const type = input.dataset.type;
+                    const potency = input.dataset.potency;
+                    
+                    items.push({
+                        category,
+                        productName,
+                        size,
+                        type,
+                        potency,
+                        unitPrice,
+                        quantity,
+                        lineTotal
+                    });
+                }
+            });
+            
+            return items;
+        }
+        
+        // ============================================
+        // START APPLICATION
+        // ============================================
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
