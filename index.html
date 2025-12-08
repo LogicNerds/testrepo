@@ -479,7 +479,7 @@
         const SUPABASE_URL = "https://bjjhnmqrryesqclwwccd.supabase.co";
         const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqamhubXFycnllc3FjbHd3Y2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxMzkwNjQsImV4cCI6MjA4MDcxNTA2NH0.dQemUtAdRhL_-R32K0WSs_GdF1qK5KKyZ-XLMLWVP-A";
         
-        // REPLACE THIS WITH THE SPECIFIC BRAND'S ID FROM SUPABASE
+        // Brand ID for this specific client
         const BRAND_ID = "1";
         
         // ============================================
@@ -500,9 +500,9 @@
          * @returns {Promise<void>}
          */
         async function fetchData() {
-            // Fetch brand config (URL encode table name with spaces)
+            // Fetch brand config
             const brandResponse = await fetch(
-                `${SUPABASE_URL}/rest/v1/Cannabis%20Order%20Nerd%20Config?id=eq.${BRAND_ID}`,
+                `${SUPABASE_URL}/rest/v1/brands?id=eq.${BRAND_ID}`,
                 {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
@@ -536,9 +536,9 @@
             if (brand.case_edibles > 0) caseSizes['Edibles'] = brand.case_edibles;
             if (brand.case_drinks > 0) caseSizes['Drinks'] = brand.case_drinks;
             
-            // Fetch products for this brand (URL encode table name with spaces)
+            // Fetch products for this brand
             const productsResponse = await fetch(
-                `${SUPABASE_URL}/rest/v1/Cannabis%20Order%20Nerd%20Products?brand_id=eq.${BRAND_ID}`,
+                `${SUPABASE_URL}/rest/v1/products?brand_id=eq.${BRAND_ID}`,
                 {
                     headers: {
                         'apikey': SUPABASE_ANON_KEY,
