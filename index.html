@@ -467,23 +467,20 @@
         // ============================================
         
         /**
-         * REPLACE THIS URL WITH YOUR PUBLISHED GOOGLE SHEET CSV URL
+         * SUPABASE CONFIGURATION
          * 
-         * To get the URL:
-         * 1. In your Google Sheet, go to File > Share > Publish to web
-         * 2. Select the sheet tab you want to publish
-         * 3. Choose "Comma-separated values (.csv)" as the format
-         * 4. Click "Publish" and copy the URL
-         * 5. Paste the URL below
-         * 
-         * Your sheet should be structured as:
-         * - Row 1: Headers (Brand_Name, Brand_Logo_URL, Case_Flower, Case_Prerolls, etc.)
-         * - Row 2: Config values
-         * - Row 3: Blank
-         * - Row 4: Product headers (Category, Product Name, Size, Type, Potency, Unit Price, Image URL)
-         * - Row 5+: Product data
+         * Each client needs their own brand_id in the Supabase database.
+         * To set up a new client:
+         * 1. Add their brand info to the 'brands' table in Supabase
+         * 2. Add their products to the 'products' table with matching brand_id
+         * 3. Copy this HTML file and replace the BRAND_ID below
          */
-        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSwyZdNO2JX0LtbCckZguBKBKG3Q6HgTOfkyem73m88GCQA_KyPeq-ifI3-rz9b9kvMZ6okwdNDDbrK/pub?output=csv";
+        
+        const SUPABASE_URL = "https://bjjhnmqrryesqclwwccd.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqamhubXFycnllc3FjbHd3Y2NkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxMzkwNjQsImV4cCI6MjA4MDcxNTA2NH0.dQemUtAdRhL_-R32K0WSs_GdF1qK5KKyZ-XLMLWVP-A";
+        
+        // REPLACE THIS WITH THE SPECIFIC BRAND'S ID FROM SUPABASE
+        const BRAND_ID = "REPLACE_WITH_BRAND_UUID";
         
         // ============================================
         // GLOBAL STATE
@@ -495,177 +492,77 @@
         let collapsedCategories = new Set(); // Track which categories are collapsed
         
         // ============================================
-        // CSV PARSING
+        // SUPABASE DATA FETCHING
         // ============================================
         
         /**
-         * Fetch CSV data from a URL with fallback CORS proxies
-         * @param {string} url - The URL to fetch
-         * @returns {Promise<string>} The CSV text
+         * Fetch brand and product data from Supabase
+         * @returns {Promise<void>}
          */
-        async function fetchCsv(url) {
-            // Add cache-busting timestamp to force fresh data from Google Sheets
-            const timestamp = Date.now();
-            const separator = url.includes('?') ? '&' : '?';
-            const cacheBustedUrl = `${url}${separator}timestamp=${timestamp}`;
-            
-            // List of CORS proxies to try in order
-            const corsProxies = [
-                (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-                (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-            ];
-            
-            // Try each proxy in sequence
-            for (let i = 0; i < corsProxies.length; i++) {
-                try {
-                    // Build proxy URL with cache-busting
-                    let proxyUrl = corsProxies[i](cacheBustedUrl);
-                    
-                    // Add cache-busting to the proxy URL itself to prevent proxy caching
-                    const proxyHasSeparator = proxyUrl.includes('?');
-                    proxyUrl += `${proxyHasSeparator ? '&' : '?'}_cb=${timestamp}`;
-                    
-                    console.log(`Attempting to fetch via proxy ${i + 1}/${corsProxies.length}...`);
-                    
-                    // Add no-cache headers to the fetch request
-                    const response = await fetch(proxyUrl, {
-                        cache: 'no-store',
-                        headers: {
-                            'Cache-Control': 'no-cache, no-store, must-revalidate',
-                            'Pragma': 'no-cache',
-                            'Expires': '0'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        console.log(`Success with proxy ${i + 1}`);
-                        return await response.text();
-                    }
-                    
-                    console.log(`Proxy ${i + 1} returned status ${response.status}, trying next...`);
-                } catch (error) {
-                    console.log(`Proxy ${i + 1} failed: ${error.message}, trying next...`);
-                    
-                    // If this was the last proxy, throw the error
-                    if (i === corsProxies.length - 1) {
-                        throw new Error(`All CORS proxies failed. Last error: ${error.message}`);
+        async function fetchData() {
+            // Fetch brand config
+            const brandResponse = await fetch(
+                `${SUPABASE_URL}/rest/v1/brands?id=eq.${BRAND_ID}`,
+                {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 }
+            );
+            
+            if (!brandResponse.ok) {
+                throw new Error(`Failed to fetch brand data: ${brandResponse.statusText}`);
             }
             
-            throw new Error('Failed to fetch data from all available proxies');
-        }
-        
-        /**
-         * Parse CSV text into array of arrays
-         * @param {string} csvText - Raw CSV text
-         * @returns {Array<Array<string>>} Array of rows (each row is an array of values)
-         */
-        function parseCsv(csvText) {
-            const lines = csvText.trim().split('\n');
-            const data = [];
+            const brandData = await brandResponse.json();
             
-            for (let i = 0; i < lines.length; i++) {
-                const values = parseCSVLine(lines[i]);
-                data.push(values);
+            if (brandData.length === 0) {
+                throw new Error(`No brand found with ID: ${BRAND_ID}. Please check your BRAND_ID configuration.`);
             }
             
-            return data;
-        }
-        
-        /**
-         * Parse a single CSV line, handling quoted values with commas
-         * @param {string} line - A single line from CSV
-         * @returns {Array<string>} Array of values
-         */
-        function parseCSVLine(line) {
-            const values = [];
-            let current = '';
-            let inQuotes = false;
+            // Parse brand config
+            const brand = brandData[0];
+            config = {
+                'Brand_Name': brand.brand_name || '',
+                'Brand_Logo_URL': brand.brand_logo_url || ''
+            };
             
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                
-                if (char === '"') {
-                    inQuotes = !inQuotes;
-                } else if (char === ',' && !inQuotes) {
-                    values.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            values.push(current.trim());
-            
-            return values;
-        }
-        
-        // ============================================
-        // DATA PARSING
-        // ============================================
-        
-        /**
-         * Parse the sheet data into config and products
-         * @param {Array<Array<string>>} rows - All rows from CSV
-         */
-        function parseSheetData(rows) {
-            if (rows.length < 5) {
-                throw new Error('Sheet must have at least 5 rows (config + headers + data)');
-            }
-            
-            // Row 0: Config headers (Brand_Name, Brand_Logo_URL, Case_Flower, etc.)
-            const configHeaders = rows[0];
-            
-            // Row 1: Config values
-            const configValues = rows[1];
-            
-            // Parse config
-            config = {};
+            // Parse case sizes
             caseSizes = {};
+            if (brand.case_flower > 0) caseSizes['Flower'] = brand.case_flower;
+            if (brand.case_prerolls > 0) caseSizes['Prerolls'] = brand.case_prerolls;
+            if (brand.case_vapes > 0) caseSizes['Vapes'] = brand.case_vapes;
+            if (brand.case_edibles > 0) caseSizes['Edibles'] = brand.case_edibles;
+            if (brand.case_drinks > 0) caseSizes['Drinks'] = brand.case_drinks;
             
-            for (let i = 0; i < configHeaders.length; i++) {
-                const key = configHeaders[i];
-                const value = configValues[i] || '';
-                
-                if (key && value) {
-                    config[key] = value;
-                    
-                    // Extract case sizes
-                    if (key.startsWith('Case_')) {
-                        const categoryName = key.replace('Case_', '').replace('_', ' ');
-                        const caseSize = parseInt(value, 10);
-                        if (caseSize > 0) {
-                            caseSizes[categoryName] = caseSize;
-                        }
+            // Fetch products for this brand
+            const productsResponse = await fetch(
+                `${SUPABASE_URL}/rest/v1/products?brand_id=eq.${BRAND_ID}`,
+                {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
                 }
+            );
+            
+            if (!productsResponse.ok) {
+                throw new Error(`Failed to fetch products: ${productsResponse.statusText}`);
             }
             
-            // Row 2: Blank (skip)
+            const productsData = await productsResponse.json();
             
-            // Row 3: Product headers
-            const productHeaders = rows[3];
-            
-            // Row 4+: Products
-            products = [];
-            for (let i = 4; i < rows.length; i++) {
-                const row = rows[i];
-                
-                // Skip empty rows
-                if (!row[0] || row.every(cell => !cell)) continue;
-                
-                const product = {};
-                for (let j = 0; j < productHeaders.length; j++) {
-                    const header = productHeaders[j];
-                    product[header] = row[j] || '';
-                }
-                
-                // Only add if we have required fields
-                if (product['Product Name'] && product['Unit Price']) {
-                    products.push(product);
-                }
-            }
+            // Map products to expected format
+            products = productsData.map(p => ({
+                'Category': p.category || '',
+                'Product Name': p.product_name || '',
+                'Size': p.size || '',
+                'Type': p.type || '',
+                'Potency': p.potency || '',
+                'Unit Price': p.unit_price || 0,
+                'Image URL': p.image_url || ''
+            }));
         }
         
         // ============================================
@@ -678,14 +575,8 @@
          */
         async function init() {
             try {
-                // Fetch CSV
-                const csvText = await fetchCsv(SHEET_CSV_URL);
-                
-                // Parse CSV into rows
-                const rows = parseCsv(csvText);
-                
-                // Parse into config and products
-                parseSheetData(rows);
+                // Fetch data from Supabase
+                await fetchData();
                 
                 // Build the UI
                 buildUI();
@@ -701,7 +592,7 @@
                         <h3>Error Loading Data</h3>
                         <p>${error.message}</p>
                         <p style="font-size: 14px; margin-top: 20px;">
-                            Please make sure you have replaced the CSV URL in the code with a valid published Google Sheet URL.
+                            Please make sure the BRAND_ID is correctly configured and the brand exists in Supabase.
                         </p>
                     </div>
                 `;
