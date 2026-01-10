@@ -3,1939 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IDK My Week</title>
+    <title>Fortune 8 Ball</title>
     <style>
-        :root {
-            --primary-start: #2c5f7a;
-            --primary-end: #1a3a4a;
-            --accent-primary: #0d9488;
-            --accent-secondary: #0f766e;
-            --accent-bg: #f0fdfa;
-            --balance-start: #0d9488;
-            --balance-end: #0f766e;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%); min-height: 100vh; }
-        .container { max-width: 500px; margin: 0 auto; min-height: 100vh; background: white; box-shadow: 0 0 50px rgba(0,0,0,0.2); }
-        .hidden { display: none !important; }
-        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; padding: 40px 20px; text-align: center; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%); }
-        .login-screen h1 { color: white; font-size: 3em; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        .login-screen p { color: rgba(255,255,255,0.9); margin-bottom: 40px; font-size: 0.95em; font-style: italic; line-height: 1.4; max-width: 300px; }
-        .google-signin-btn { background: white; color: #333; padding: 15px 40px; border: none; border-radius: 8px; font-size: 1em; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.2s; }
-        .google-signin-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-        .google-icon { width: 24px; height: 24px; }
-        .header { background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%); color: white; padding: 25px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .header-left, .header-right { display: flex; align-items: center; gap: 15px; }
-        .theme-btn, .logout-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: background 0.2s; }
-        .theme-btn:hover, .logout-btn:hover { background: rgba(255,255,255,0.3); }
-        .user-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; }
-        .main-content { padding: 20px 20px 80px 20px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: linear-gradient(135deg, var(--balance-start) 0%, var(--balance-end) 100%); color: white; padding: 20px; border-radius: 16px; text-align: center; }
-        .stat-card.alt { background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); }
-        .stat-value { font-size: 2em; font-weight: 700; margin-bottom: 5px; }
-        .stat-label { font-size: 0.85em; opacity: 0.9; }
-        .nav-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .nav-tab { padding: 12px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 12px; cursor: pointer; font-weight: 600; text-align: center; transition: all 0.2s; white-space: nowrap; }
-        .nav-tab:hover { border-color: var(--accent-primary); }
-        .nav-tab.active { background: var(--accent-bg); border-color: var(--accent-primary); color: var(--accent-primary); }
-        .card { background: white; border: 2px solid #e0e0e0; border-radius: 16px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s; }
-        .card:hover { border-color: var(--accent-primary); box-shadow: 0 3px 10px rgba(13, 148, 136, 0.2); transform: translateY(-2px); }
-        .card.pending { border-color: #f59e0b; background: #fffbeb; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .card-title { font-size: 1.2em; font-weight: 600; color: #333; display: flex; align-items: center; gap: 8px; }
-        .card-badge { background: var(--accent-primary); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
-        .card-badge.points { background: #f59e0b; }
-        .card-badge.side-mission { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); animation: shimmer 2s infinite; }
-        @keyframes shimmer { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
-        .card-badge.points.side-mission-points { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; font-weight: 700; }
-        .card-body { color: #666; font-size: 0.9em; line-height: 1.4; }
-        .card-meta { display: flex; gap: 15px; margin-top: 10px; font-size: 0.85em; color: #999; }
-        .card-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .card-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .card-btn.primary { background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); color: white; }
-        .card-btn.success { background: #10b981; color: white; }
-        .card-btn.danger { background: #ef4444; color: white; }
-        .action-btn, .add-btn { width: 100%; padding: 15px; border-radius: 12px; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-bottom: 15px; }
-        .action-btn { border: none; color: white; background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 148, 136, 0.4); }
-        .add-btn { background: white; border: 2px dashed var(--accent-primary); color: var(--accent-primary); }
-        .add-btn:hover { background: var(--accent-bg); }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-        .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 30px 20px; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto; }
-        .modal-content h2 { color: #333; margin-bottom: 20px; font-size: 1.5em; }
-        .form-group { margin-bottom: 20px; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; }
-        .form-group label { display: block; color: #666; margin-bottom: 8px; font-weight: 600; font-size: 0.9em; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1em; font-family: inherit; transition: border-color 0.2s; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--accent-primary); }
-        .form-group textarea { resize: vertical; min-height: 80px; }
-        .points-picker { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .points-btn { padding: 15px; border: 2px solid #e0e0e0; background: white; border-radius: 10px; font-size: 1.2em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .points-btn:hover { border-color: var(--accent-primary); }
-        .points-btn.selected { border-color: var(--accent-primary); background: var(--accent-bg); color: var(--accent-primary); }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 25px; }
-        .modal-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .modal-btn.primary { background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%); color: white; }
-        .modal-btn.primary:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(13, 148, 136, 0.4); }
-        .modal-btn.secondary { background: #f0f0f0; color: #666; }
-        .modal-btn.secondary:hover { background: #e0e0e0; }
-        .theme-option { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
-        .theme-option:hover { border-color: var(--accent-primary); background: #f9fafb; }
-        .theme-preview { width: 80px; height: 50px; border-radius: 8px; display: flex; overflow: hidden; }
-        .theme-preview-color { flex: 1; }
-        .theme-name { font-weight: 600; color: #333; }
-        .setup-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; background: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%); }
-        .setup-screen h2 { color: white; margin-bottom: 30px; text-align: center; }
-        .setup-card { background: white; border-radius: 20px; padding: 30px 20px; margin-bottom: 20px; max-width: 400px; width: 100%; }
-        .member-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9fafb; border-radius: 10px; margin-bottom: 10px; }
-        .member-info { flex: 1; }
-        .member-name { font-weight: 600; color: #333; }
-        .member-email { font-size: 0.85em; color: #999; }
-        .member-role, .member-status { padding: 4px 12px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
-        .member-role.parent { background: #dbeafe; color: #1e40af; }
-        .member-role.child { background: #fce7f3; color: #be185d; }
-        .member-status.pending { background: #fef3c7; color: #92400e; }
-        .member-status.active { background: #d1fae5; color: #065f46; }
-        .remove-btn { background: #fee2e2; color: #dc2626; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85em; font-weight: 600; }
-        .empty-state { text-align: center; padding: 40px 20px; color: #999; }
-        .empty-state-icon { font-size: 3em; margin-bottom: 15px; }
-        .footer { position: fixed; bottom: 0; left: 0; right: 0; background: #333; color: white; padding: 12px 20px; text-align: center; font-size: 0.85em; z-index: 999; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .footer a { color: #a8edea; text-decoration: none; cursor: pointer; margin-left: 5px; }
-        .footer a:hover { text-decoration: underline; }
-        .disclaimer-drawer { position: fixed; bottom: 0; left: 0; right: 0; background: white; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; z-index: 1001; box-shadow: 0 -5px 20px rgba(0,0,0,0.3); }
-        .disclaimer-drawer.open { max-height: 80vh; overflow-y: auto; }
-        .disclaimer-content { padding: 30px 20px 80px 20px; max-width: 600px; margin: 0 auto; }
-        .disclaimer-content h3 { color: #333; margin-bottom: 20px; font-size: 1.5em; text-align: center; }
-        .disclaimer-content p { color: #666; line-height: 1.6; margin-bottom: 15px; text-align: justify; }
-        .disclaimer-close { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.8em; cursor: pointer; color: #999; padding: 5px 10px; }
-        .disclaimer-close:hover { color: #333; }
-        .disclaimer-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; }
-        .disclaimer-overlay.active { display: block; }
-        @media (max-width: 768px) { 
-            .nav-tabs { grid-template-columns: repeat(2, 1fr); }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
-        @media (max-width: 480px) { 
-            .nav-tabs { grid-template-columns: 1fr; }
+
+        /* CONTAINER - THE ANCHOR */
+        .container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .header h2 {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            font-style: italic;
+        }
+
+        /* BALL - THE CENTER ANCHOR */
+        #ball {
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            background-image: url('https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/8ball.png');
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.1s ease;
+            user-select: none;
+            overflow: hidden;
+            margin: 0px;
+        }
+
+        #ball:active {
+            transform: scale(0.98);
+        }
+
+        #ball.shaking {
+            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            10% { transform: translate(-8px, -6px) rotate(-2deg); }
+            20% { transform: translate(9px, 5px) rotate(1.5deg); }
+            30% { transform: translate(-7px, 8px) rotate(-1deg); }
+            40% { transform: translate(10px, -7px) rotate(2deg); }
+            50% { transform: translate(-9px, 6px) rotate(-1.5deg); }
+            60% { transform: translate(7px, -8px) rotate(1deg); }
+            70% { transform: translate(-6px, 9px) rotate(-0.5deg); }
+            80% { transform: translate(5px, -5px) rotate(0.5deg); }
+            90% { transform: translate(-3px, 4px) rotate(-0.25deg); }
+        }
+
+        /* TRIANGLE */
+        #triangle-container {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0) rotate(180deg);
+            opacity: 0;
+            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        #triangle-container.floating {
+            transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            opacity: 1;
+        }
+
+        #triangle-container.hiding {
+            transform: translate(-50%, -50%) scale(0) rotate(-180deg);
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+
+        #triangle-svg {
+            display: block;
+            width: 120px;
+            height: auto;
+            opacity: 0.85;
+        }
+
+        #message-container {
+            position: absolute;
+            top: 65%;
+            left: 50%;
+            transform: translate(-50%, -40%);
+            width: 65px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #message-container.visible {
+            opacity: 1;
+        }
+
+        #fortune {
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.3;
+            font-family: 'Arial Narrow', 'Roboto Condensed', 'PT Sans Narrow', 'Franklin Gothic Medium', Arial, sans-serif;
+        }
+
+        /* BUTTONS - ABSOLUTELY POSITIONED TO HUG THE BALL */
+        .impact-button {
+            position: absolute;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .impact-button:hover {
+            transform: scale(1.05);
+        }
+
+        .impact-button img {
+            display: block;
+            width: 280px;
+            height: auto;
+        }
+
+        /* LEFT BUTTON - Bottom left, hugging the ball */
+        .button-left {
+            bottom: 10%;
+            left: 5%;
+        }
+
+        /* RIGHT BUTTON - Bottom right, hugging the ball */
+        .button-right {
+            bottom: 10%;
+            right: 5%;
+        }
+
+        /* SUB-HEADLINE - Hidden on desktop */
+        .sub-headline {
+            display: none;
+        }
+
+        /* MOBILE LAYOUT */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .header h2 {
+                font-size: 18px;
+            }
+
+            #ball {
+                width: 350px;
+                height: 350px;
+            }
+
+            #triangle-svg {
+                width: 95px;
+            }
+
+            #message-container {
+                width: 52px;
+            }
+
+            #fortune {
+                font-size: 9px;
+            }
+
+            /* Kill absolute positioning on mobile */
+            .impact-button {
+                position: static;
+            }
+
+            /* Show sub-headline */
+            .sub-headline {
+                display: block;
+                text-align: center;
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 300;
+                letter-spacing: 1px;
+                line-height: 1.3;
+                margin-top: 20px;
+                margin-bottom: 20px;
+                grid-column: 1 / -1;
+            }
+
+            /* Grid layout for buttons */
+            .mobile-buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                width: 100%;
+                margin-top: 0px;
+            }
+
+            .mobile-buttons .impact-button img {
+                width: 100%;
+                max-width: 160px;
+            }
+
+            /* Hide desktop buttons */
+            .button-left,
+            .button-right {
+                display: none;
+            }
+        }
+
+        /* Desktop: hide mobile buttons */
+        @media (min-width: 769px) {
+            .mobile-buttons {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loginScreen" class="login-screen">
-        <h1>📅 IDK My Week</h1>
-        <p>Complete missions, build streaks, earn points together as a family!</p>
-        <button class="google-signin-btn" onclick="signInWithGoogle()">
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            Sign in with Google
-        </button>
-    </div>
-
-    <div id="setupScreen" class="setup-screen hidden">
-        <h2>🏠 Set Up Your Family</h2>
-        <div class="setup-card">
-            <h3 style="margin-bottom: 20px;">Create Your Family Account</h3>
-            <div class="form-group">
-                <label>Family Name</label>
-                <input type="text" id="familyNameInput" placeholder="The Smith Family">
-            </div>
-            <button class="action-btn" onclick="createFamily()">Create Family</button>
-        </div>
-    </div>
-
-    <div id="mainApp" class="container hidden">
+    <div class="container">
         <div class="header">
-            <div class="header-left">
-                <button class="theme-btn" onclick="showThemeModal()" title="Change Theme">🎨</button>
-                <span style="margin-left: 15px; font-size: 1.2em; font-weight: 600;">IDK My Week</span>
-            </div>
-            <div class="header-right">
-                <img id="userAvatar" class="user-avatar" src="" alt="User">
-                <button class="logout-btn" onclick="signOut()">Logout</button>
+            <h1>HAVE A STRATEGY QUESTION?</h1>
+            <h2>ASK THE MAGIC VIBES BALL</h2>
+        </div>
+
+        <div id="ball">
+            <div id="triangle-container">
+                <svg id="triangle-svg" viewBox="0 0 180 156">
+                    <polygon points="90,0 180,156 0,156" fill="#1e3a8a" />
+                </svg>
+                <div id="message-container">
+                    <div id="fortune"></div>
+                </div>
             </div>
         </div>
 
-        <div class="main-content">
-            <div id="noFamilyState" class="hidden" style="text-align: center; padding: 60px 20px;">
-                <h2 style="color: #333; margin-bottom: 20px;">👋 Welcome to IDK My Week!</h2>
-                <p style="color: #666; margin-bottom: 30px; line-height: 1.6;">Get started by creating your family account to complete missions, earn points, and build streaks together.</p>
-                <button class="action-btn" onclick="showModal('createFamilyModal')" style="max-width: 300px;">🏠 Create Your Family</button>
+        <!-- DESKTOP: Absolutely positioned buttons -->
+        <a href="#" class="impact-button button-left">
+            <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
+        </a>
+
+        <a href="#" class="impact-button button-right">
+            <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
+        </a>
+
+        <!-- MOBILE: Grid layout -->
+        <div class="mobile-buttons">
+            <div class="sub-headline">
+                LOOKING FOR MORE ACTIONABLE<br>ANSWERS & SOLUTIONS?
             </div>
-
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="todayPoints">0</div>
-                    <div class="stat-label">Points Today</div>
-                </div>
-                <div class="stat-card alt">
-                    <div class="stat-value" id="weekPoints">0</div>
-                    <div class="stat-label">This Week</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="bestStreak">0</div>
-                    <div class="stat-label">Best Streak 🔥</div>
-                </div>
-                <div class="stat-card alt">
-                    <div class="stat-value" id="pendingMissions">0</div>
-                    <div class="stat-label">My Pending Missions</div>
-                </div>
-            </div>
-
-            <div class="nav-tabs">
-                <div class="nav-tab active" onclick="switchTab('missions')">My Missions</div>
-                <div class="nav-tab" id="queueTab" onclick="switchTab('queue')" style="display: none;">
-                    Queue <span id="queueCount" style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; margin-left: 5px;"></span>
-                </div>
-                <div class="nav-tab" id="completedTabBtn" onclick="switchTab('completed')" style="display: none;">Completed</div>
-                <div class="nav-tab" id="dashboardTab" onclick="switchTab('dashboard')" style="display: none;">Family Dashboard</div>
-                <div class="nav-tab" onclick="switchTab('settings')">Settings</div>
-            </div>
-
-            <div id="missionsTab" class="tab-content">
-                <button class="add-btn" onclick="showModal('addMissionModal')" id="addMissionBtn">+ Add Mission</button>
-                <div id="missionsList"></div>
-            </div>
-
-            <div id="queueTabContent" class="tab-content hidden">
-                <div id="queueList"></div>
-            </div>
-
-            <div id="completedTab" class="tab-content hidden">
-                <button class="add-btn" onclick="clearCompleted()" style="background: #dc2626;">Clear Completed List</button>
-                <div id="completedList"></div>
-            </div>
-
-            <div id="dashboardTabContent" class="tab-content hidden">
-                <div id="dashboardContent"></div>
-            </div>
-
-            <div id="tasksTab" class="tab-content hidden">
-                <!-- Keeping for backward compatibility during transition -->
-            </div>
-
-            <div id="choresTab" class="tab-content hidden">
-                <!-- Keeping for backward compatibility during transition -->
-            </div>
-
-            <div id="settingsTab" class="tab-content hidden">
-                <div class="card" style="cursor: default;">
-                    <div class="card-header">
-                        <div class="card-title">👨‍👩‍👧‍👦 Family Members</div>
-                    </div>
-                    <div id="familyMembersList"></div>
-                    <button class="add-btn" onclick="showModal('addMemberModal')" id="addMemberBtn">+ Add Family Member</button>
-                </div>
-
-                <div class="card" style="cursor: default;" id="parentSettings">
-                    <div class="card-header">
-                        <div class="card-title">⚙️ Family Settings</div>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="streaksToggle" onchange="toggleFamilySetting('streaksEnabled')">
-                            <label for="streaksToggle">Enable Streaks 🔥</label>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="kidsTasksToggle" onchange="toggleFamilySetting('kidsCanCreateTasks')">
-                            <label for="kidsTasksToggle">Kids Can Create Tasks</label>
-                        </div>
-                    </div>
-                    <div class="form-group" style="margin-top: 30px; border-top: 2px solid #fee2e2; padding-top: 20px;">
-                        <button class="modal-btn secondary" onclick="resetFamilyData()" style="width: 100%; background: #dc2626; color: white; border: none;">
-                            🗑️ Reset All Family Data
-                        </button>
-                        <small style="color: #dc2626; display: block; margin-top: 10px; text-align: center;">
-                            Clears all missions, points, and history. Cannot be undone!
-                        </small>
-                    </div>
-                </div>
-
-                <div class="card" style="cursor: default;">
-                    <div class="card-header">
-                        <div class="card-title">📊 My Stats</div>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Lifetime Points:</strong> <span id="lifetimePoints">0</span></p>
-                        <p><strong>This Month:</strong> <span id="monthPoints">0</span></p>
-                    </div>
-                </div>
-            </div>
+            <a href="#" class="impact-button">
+                <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
+            </a>
+            <a href="#" class="impact-button">
+                <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
+            </a>
         </div>
     </div>
 
-    <div id="createFamilyModal" class="modal">
-        <div class="modal-content">
-            <h2>🏠 Create Your Family</h2>
-            <p style="color: #666; margin-bottom: 20px;">Set up your family account to start tracking chores and earning points together.</p>
-            <div class="form-group">
-                <label>Family Name</label>
-                <input type="text" id="createFamilyNameInput" placeholder="The Smith Family">
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('createFamilyModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="createFamilyFromModal()">Create Family</button>
-            </div>
-        </div>
-    </div>
+    <script>
+        const fortunes = [
+            "Trust your gut", "The stars are aligned", "Your future looks bright",
+            "Follow your own path", "Do what you love", "My sources say yes",
+            "Good things are ahead", "Pursue your passion", "You are growing",
+            "Signs point to yes", "Fuck yes!", "Try again", "Sure", "Damn straight",
+            "The vibes are good", "Fuck it!", "You do you", "You're killin' it",
+            "Hell yeah!", "Absolutely", "Yes, definitely", "Signs say yes",
+            "Sources say yes", "Outlook good", "Most likely", "You got this",
+            "Trust yourself", "Follow through", "Do it now", "Just do it",
+            "Better not tell", "Cannot predict", "Proceed with care", "Take the leap",
+            "Hold your horses", "Small wins", "Big energy", "New doors open",
+            "Good things ahead", "Keep going", "Keep the faith", "Trust your gut",
+            "The vibes align", "Stars are aligned", "Change is coming", "Embrace change",
+            "Recalibrate", "Shift your focus", "Protect your peace", "Opportunity knocks",
+            "Follow joy", "Pursue passion", "You're growing", "Level up", "Burn bright",
+            "Ride the wave", "Stay curious", "Be bold", "Aim higher", "Quiet the noise",
+            "Take a breath", "All systems go", "Full speed ahead", "Not the one",
+            "Pass for now", "Revisit later", "Why not?", "Sparks will fly",
+            "The universe nods", "Orbit aligns", "Cosmos says yes", "Galactic green light",
+            "Star-synced", "Thumbs up", "Astral thumbs up", "Make noise", "Chaos-approved",
+            "Change the game", "Go break norms", "Passion approved", "Give yourself grace",
+            "Permission granted", "Most likely", "No doubt", "Go ahead", "Maybe soon",
+            "Damn straight", "Make noise", "Wild card", "Full throttle", "Go wild",
+            "Chaos approved", "Do the math", "Trust the data", "Test and learn",
+            "Go for it", "Green light", "Make it happen", "Let's go", "Onward",
+            "Do the thing", "Game on", "Maybe later", "Ask again later", "Give it time",
+            "Could be", "Time will tell", "Watch this space", "Try again", "Hold up",
+            "Hold steady", "Revisit this", "Wait", "Not sure yet", "See how it goes",
+            "Take your time", "Reflect", "Damn right", "Test it", "Nope", "Maybe",
+            "Perhaps", "It is certain"
+        ];
 
-    <div id="addMissionModal" class="modal">
-        <div class="modal-content">
-            <h2 id="addMissionModalTitle">Add Mission</h2>
-            <div class="form-group" id="missionSideMissionGroup">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="isSideMission" style="width: auto; cursor: pointer;">
-                    <label for="isSideMission" style="margin: 0; cursor: pointer;">⭐ Side Mission (Extra Credit)</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Mission Name</label>
-                <input type="text" id="missionName" placeholder="Take out trash">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="missionDescription" placeholder="What needs to be done?"></textarea>
-            </div>
-            <div class="form-group" id="missionPointsGroup">
-                <label>Points Value</label>
-                <div class="points-picker">
-                    <button type="button" class="points-btn" onclick="selectMissionPoints(1, this)">1</button>
-                    <button type="button" class="points-btn" onclick="selectMissionPoints(2, this)">2</button>
-                    <button type="button" class="points-btn selected" onclick="selectMissionPoints(3, this)">3</button>
-                    <button type="button" class="points-btn" onclick="selectMissionPoints(5, this)">5</button>
-                    <button type="button" class="points-btn" onclick="selectMissionPoints(8, this)">8</button>
-                    <button type="button" class="points-btn" onclick="selectMissionPoints(13, this)">13</button>
-                </div>
-            </div>
-            <div class="form-group" id="missionAssigneeGroup">
-                <label>Assign To</label>
-                <select id="missionAssignee" multiple style="height: 80px;">
-                    <option value="">Unassigned (Anyone can do)</option>
-                </select>
-                <small style="color: #999; font-size: 0.85em;">Hold Ctrl/Cmd to select multiple</small>
-            </div>
-            <div class="form-group">
-                <label>Due Date (Optional)</label>
-                <input type="date" id="missionDueDate">
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('addMissionModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="addMission()">Add Mission</button>
-            </div>
-        </div>
-    </div>
+        const ball = document.getElementById('ball');
+        const triangleContainer = document.getElementById('triangle-container');
+        const messageContainer = document.getElementById('message-container');
+        const fortuneEl = document.getElementById('fortune');
 
-    <div id="editMissionModal" class="modal">
-        <div class="modal-content">
-            <h2>Approve Mission Request</h2>
-            <input type="hidden" id="editMissionId">
-            <div class="form-group">
-                <label>Mission Name</label>
-                <input type="text" id="editMissionName" readonly style="background: #f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="editMissionDescription" readonly style="background: #f0f0f0;"></textarea>
-            </div>
-            <div class="form-group">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="editIsSideMission" style="width: auto; cursor: pointer;">
-                    <label for="editIsSideMission" style="margin: 0; cursor: pointer;">⭐ Side Mission (Extra Credit)</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Points Value</label>
-                <input type="number" id="editMissionPoints" value="3" min="1" max="100">
-            </div>
-            <div class="form-group">
-                <label>Due Date</label>
-                <input type="date" id="editMissionDueDate">
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('editMissionModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="approveMissionEdit()">Approve Mission</button>
-            </div>
-        </div>
-    </div>
+        let isVisible = false;
+        let lastFortuneIndex = -1;
+        let isAnimating = false;
 
-    <div id="addChoreModal" class="modal">
-        <div class="modal-content">
-            <h2>Add Chore</h2>
-            <div class="form-group">
-                <label>Chore Name</label>
-                <input type="text" id="choreName" placeholder="Take out trash">
-            </div>
-            <div class="form-group">
-                <label>Description</label>
-                <textarea id="choreDescription" placeholder="What needs to be done?"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Points Value</label>
-                <div class="points-picker">
-                    <button type="button" class="points-btn" onclick="selectPoints(1, this)">1</button>
-                    <button type="button" class="points-btn" onclick="selectPoints(2, this)">2</button>
-                    <button type="button" class="points-btn selected" onclick="selectPoints(3, this)">3</button>
-                    <button type="button" class="points-btn" onclick="selectPoints(5, this)">5</button>
-                    <button type="button" class="points-btn" onclick="selectPoints(8, this)">8</button>
-                    <button type="button" class="points-btn" onclick="selectPoints(13, this)">13</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Frequency</label>
-                <select id="choreFrequency">
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="asneeded">As Needed</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Assign To</label>
-                <select id="choreAssignee" multiple style="height: 80px;">
-                    <option value="">Unassigned (Anyone can do)</option>
-                </select>
-                <small style="color: #999; font-size: 0.85em;">Hold Ctrl/Cmd to select multiple</small>
-            </div>
-            <div class="form-group">
-                <label>Due Date (Optional)</label>
-                <input type="date" id="choreDueDate">
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('addChoreModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="addChore()">Add Chore</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="addTaskModal" class="modal">
-        <div class="modal-content">
-            <h2>Add Task</h2>
-            <div class="form-group">
-                <label>Task Title</label>
-                <input type="text" id="taskTitle" placeholder="Clean garage">
-            </div>
-            <div class="form-group">
-                <label>Points Value</label>
-                <div class="points-picker">
-                    <button type="button" class="points-btn" onclick="selectTaskPoints(1, this)">1</button>
-                    <button type="button" class="points-btn" onclick="selectTaskPoints(2, this)">2</button>
-                    <button type="button" class="points-btn selected" onclick="selectTaskPoints(3, this)">3</button>
-                    <button type="button" class="points-btn" onclick="selectTaskPoints(5, this)">5</button>
-                    <button type="button" class="points-btn" onclick="selectTaskPoints(8, this)">8</button>
-                    <button type="button" class="points-btn" onclick="selectTaskPoints(13, this)">13</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Assign To</label>
-                <select id="taskAssignee"></select>
-            </div>
-            <div class="form-group">
-                <label>Due Date (Optional)</label>
-                <input type="date" id="taskDueDate">
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('addTaskModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="addTask()">Add Task</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="addMemberModal" class="modal">
-        <div class="modal-content">
-            <h2>Add Family Member</h2>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="memberEmail" placeholder="kid@gmail.com">
-            </div>
-            <div class="form-group">
-                <label>Display Name</label>
-                <input type="text" id="memberName" placeholder="Alex">
-            </div>
-            <div class="form-group">
-                <label>Role</label>
-                <select id="memberRole">
-                    <option value="child">Child</option>
-                    <option value="parent">Parent</option>
-                </select>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('addMemberModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="addFamilyMember()">Send Invite</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="completeChoreModal" class="modal">
-        <div class="modal-content">
-            <h2>Mark Chore Complete</h2>
-            <div id="completeChoreInfo"></div>
-            <div class="form-group">
-                <label>Notes (Optional)</label>
-                <textarea id="choreNotes" placeholder="Any notes?"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('completeChoreModal')">Cancel</button>
-                <button class="modal-btn primary" onclick="submitChoreCompletion()">Submit for Approval</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="completeMissionModal" class="modal">
-        <div class="modal-content">
-            <h2>Complete Mission</h2>
-            <div id="completeMissionInfo"></div>
-            <div class="form-group">
-                <label>Notes (Optional)</label>
-                <textarea id="missionNotes" placeholder="Any notes?"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('completeMissionModal')">Cancel</button>
-                <button class="modal-btn primary" id="completeMissionBtn" onclick="submitMissionCompletion()">Submit for Approval</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="reviewModal" class="modal">
-        <div class="modal-content">
-            <h2>Review Submission</h2>
-            <div id="reviewInfo"></div>
-            <div class="form-group" id="rejectionReasonGroup" style="display: none;">
-                <label>Rejection Reason</label>
-                <textarea id="rejectionReason" placeholder="Why is this being rejected?"></textarea>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('reviewModal')">Cancel</button>
-                <button class="modal-btn danger" onclick="reviewSubmission('reject')">Reject</button>
-                <button class="modal-btn success" onclick="reviewSubmission('approve')">Approve</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Theme Modal -->
-    <div id="themeModal" class="modal">
-        <div class="modal-content">
-            <h2>Choose Your Vibe</h2>
-            <div class="theme-option" onclick="setTheme('default')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #2c5f7a"></div>
-                    <div class="theme-preview-color" style="background: #0d9488"></div>
-                    <div class="theme-preview-color" style="background: #f59e0b"></div>
-                </div>
-                <div class="theme-name">Teal & Navy (Default)</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('classic')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #000"></div>
-                    <div class="theme-preview-color" style="background: #fff; border: 1px solid #ddd;"></div>
-                    <div class="theme-preview-color" style="background: #000"></div>
-                </div>
-                <div class="theme-name">Classic Black & White</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('ocean')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #0c4a6e"></div>
-                    <div class="theme-preview-color" style="background: #0ea5e9"></div>
-                    <div class="theme-preview-color" style="background: #06b6d4"></div>
-                </div>
-                <div class="theme-name">Ocean Blue</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('royal')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #1e3a8a"></div>
-                    <div class="theme-preview-color" style="background: #6366f1"></div>
-                    <div class="theme-preview-color" style="background: #a855f7"></div>
-                </div>
-                <div class="theme-name">Royal Purple & Blue</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('purple')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #581c87"></div>
-                    <div class="theme-preview-color" style="background: #a855f7"></div>
-                    <div class="theme-preview-color" style="background: #ec4899"></div>
-                </div>
-                <div class="theme-name">Deep Purple</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('pink')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #fce7f3"></div>
-                    <div class="theme-preview-color" style="background: #ec4899"></div>
-                    <div class="theme-preview-color" style="background: #fff"></div>
-                </div>
-                <div class="theme-name">Light Pink & White</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('monochrome')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #000"></div>
-                    <div class="theme-preview-color" style="background: #ef4444"></div>
-                    <div class="theme-preview-color" style="background: #fff"></div>
-                </div>
-                <div class="theme-name">Black Red White</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('forest')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #064e3b"></div>
-                    <div class="theme-preview-color" style="background: #10b981"></div>
-                    <div class="theme-preview-color" style="background: #fbbf24"></div>
-                </div>
-                <div class="theme-name">Forest Green</div>
-            </div>
-            <div class="theme-option" onclick="setTheme('sunset')">
-                <div class="theme-preview">
-                    <div class="theme-preview-color" style="background: #7c2d12"></div>
-                    <div class="theme-preview-color" style="background: #f97316"></div>
-                    <div class="theme-preview-color" style="background: #fbbf24"></div>
-                </div>
-                <div class="theme-name">Sunset Orange</div>
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn secondary" onclick="closeModal('themeModal')">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="disclaimerOverlay" class="disclaimer-overlay" onclick="closeDisclaimer()"></div>
-    <div id="disclaimerDrawer" class="disclaimer-drawer">
-        <button class="disclaimer-close" onclick="closeDisclaimer()">×</button>
-        <div class="disclaimer-content">
-            <h3>Disclaimer</h3>
-            <p>IDK My Week is provided for personal family organization purposes only. Parents are solely responsible for age-appropriate chores and supervision.</p>
-            <p>Logic Nerds assumes no liability for family dynamics or any consequences arising from chore assignments. This software is provided "as is" without warranty.</p>
-        </div>
-    </div>
-
-    <div class="footer">
-        © 2026 Logic Nerds. All Rights Reserved. | <a onclick="openDisclaimer()">Disclaimer</a>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut as firebaseSignOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, getDocs, onSnapshot, serverTimestamp, getDoc, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDtBO48uBogqcdv69VO9IH7MIG8Kb1YG10",
-            authDomain: "idk-money-tracker.firebaseapp.com",
-            projectId: "idk-money-tracker",
-            storageBucket: "idk-money-tracker.firebasestorage.app",
-            messagingSenderId: "1033439716188",
-            appId: "1:1033439716188:web:ebf8c149f68d3d568f9799"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-
-        let currentUser = null, currentFamily = null, currentMember = null;
-        let familyMembers = [], chores = [], tasks = [], missions = [], submissions = [], pointsHistory = [];
-        let selectedPoints = 3, selectedTaskPoints = 3, selectedMissionPoints = 3, selectedChore = null, selectedSubmission = null;
-        let unsubAll = [];
-
-        // Auth functions
-        async function signInWithGoogle() {
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error('Sign in error:', error);
-                alert('Sign in failed. Please try again.');
-            }
+        function getRandomFortune() {
+            let index;
+            do {
+                index = Math.floor(Math.random() * fortunes.length);
+            } while (index === lastFortuneIndex && fortunes.length > 1);
+            
+            lastFortuneIndex = index;
+            return fortunes[index];
         }
 
-        async function signOut() {
-            if (confirm('Are you sure you want to sign out?')) {
-                try {
-                    unsubAll.forEach(u => u());
-                    await firebaseSignOut(auth);
-                } catch (error) {
-                    console.error('Sign out error:', error);
-                    alert('Sign out failed. Please try again.');
-                }
-            }
+        function showFortune() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const fortune = getRandomFortune();
+            fortuneEl.textContent = fortune;
+            
+            ball.classList.add('shaking');
+            
+            setTimeout(() => {
+                ball.classList.remove('shaking');
+                triangleContainer.classList.remove('hiding');
+                triangleContainer.classList.add('floating');
+                
+                setTimeout(() => {
+                    messageContainer.classList.add('visible');
+                    isAnimating = false;
+                }, 800);
+            }, 600);
+            
+            isVisible = true;
         }
 
-        // Make functions globally available
-        window.signInWithGoogle = signInWithGoogle;
-        window.signOut = signOut;
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) { currentUser = user; await checkFamilyStatus(); }
-            else { currentUser = null; showScreen('login'); }
-        });
-
-        async function checkFamilyStatus() {
-            const fq = query(collection(db, 'families'), where('ownerId', '==', currentUser.uid));
-            const fs = await getDocs(fq);
-            if (!fs.empty) {
-                currentFamily = { id: fs.docs[0].id, ...fs.docs[0].data() };
-                await loadMember(); showScreen('main'); loadAll(); return;
-            }
-            const mq = query(collection(db, 'familyMembers'), where('email', '==', currentUser.email));
-            const ms = await getDocs(mq);
-            if (!ms.empty) {
-                const md = ms.docs[0].data();
-                if (md.status === 'pending' && !md.userId) {
-                    try {
-                        await updateDoc(doc(db, 'familyMembers', ms.docs[0].id), {
-                            userId: currentUser.uid, status: 'active', joinedAt: serverTimestamp()
-                        });
-                    } catch (e) {
-                        console.error('Error updating member status:', e);
-                    }
-                }
-                const fd = await getDoc(doc(db, 'families', md.familyId));
-                if (fd.exists()) {
-                    currentFamily = { id: fd.id, ...fd.data() };
-                    await loadMember(); showScreen('main'); loadAll(); return;
-                }
-            }
-            showScreen('main');
-            updateUI(); // Show no family state
+        function hideFortune() {
+            if (isAnimating) return;
+            
+            messageContainer.classList.remove('visible');
+            triangleContainer.classList.remove('floating');
+            triangleContainer.classList.add('hiding');
+            isVisible = false;
         }
 
-        async function loadMember() {
-            const q = query(collection(db, 'familyMembers'), where('familyId', '==', currentFamily.id), where('userId', '==', currentUser.uid));
-            const s = await getDocs(q);
-            if (!s.empty) currentMember = { id: s.docs[0].id, ...s.docs[0].data() };
-        }
-
-        window.createFamily = async () => {
-            const name = document.getElementById('familyNameInput').value.trim();
-            if (!name) return alert('Enter family name');
-            try {
-                const fr = await addDoc(collection(db, 'families'), {
-                    ownerId: currentUser.uid, familyName: name, createdAt: serverTimestamp(),
-                    settings: { streaksEnabled: true, goalsEnabled: false, kidsCanCreateTasks: true, pointsSet: [1,2,3,5,8,13] }
-                });
-                await addDoc(collection(db, 'familyMembers'), {
-                    familyId: fr.id, userId: currentUser.uid, email: currentUser.email,
-                    displayName: currentUser.displayName || 'Parent', role: 'parent', status: 'active',
-                    invitedAt: serverTimestamp(), joinedAt: serverTimestamp(), settings: { streaksEnabled: true }
-                });
-                await checkFamilyStatus();
-            } catch (e) { console.error(e); alert('Failed to create family'); }
-        };
-
-        window.createFamilyFromModal = async () => {
-            const name = document.getElementById('createFamilyNameInput').value.trim();
-            if (!name) return alert('Enter family name');
-            try {
-                const fr = await addDoc(collection(db, 'families'), {
-                    ownerId: currentUser.uid, familyName: name, createdAt: serverTimestamp(),
-                    settings: { streaksEnabled: true, goalsEnabled: false, kidsCanCreateTasks: true, pointsSet: [1,2,3,5,8,13] }
-                });
-                await addDoc(collection(db, 'familyMembers'), {
-                    familyId: fr.id, userId: currentUser.uid, email: currentUser.email,
-                    displayName: currentUser.displayName || 'Parent', role: 'parent', status: 'active',
-                    invitedAt: serverTimestamp(), joinedAt: serverTimestamp(), settings: { streaksEnabled: true }
-                });
-                closeModal('createFamilyModal');
-                await checkFamilyStatus();
-            } catch (e) { console.error(e); alert('Failed to create family'); }
-        };
-
-
-        function loadAll() {
-            unsubAll.forEach(u => u()); unsubAll = [];
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'familyMembers'), where('familyId', '==', currentFamily.id)), s => {
-                familyMembers = []; s.forEach(d => familyMembers.push({ id: d.id, ...d.data() }));
-                updateMembers(); updateAssignees();
-            }));
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'chores'), where('familyId', '==', currentFamily.id)), s => {
-                chores = []; s.forEach(d => chores.push({ id: d.id, ...d.data() }));
-            }));
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'tasks'), where('familyId', '==', currentFamily.id)), s => {
-                tasks = []; s.forEach(d => tasks.push({ id: d.id, ...d.data() }));
-            }));
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'missions'), where('familyId', '==', currentFamily.id)), s => {
-                missions = []; 
-                s.forEach(d => missions.push({ id: d.id, ...d.data() })); 
-                updateMissions();
-                if (currentMember && currentMember.role === 'parent') {
-                    updateQueue(); // Update when missions change (new requests, etc.)
-                    updateDashboard();
-                }
-            }));
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'choreSubmissions'), where('familyId', '==', currentFamily.id)), s => {
-                submissions = []; 
-                s.forEach(d => submissions.push({ id: d.id, ...d.data() })); 
-                updateMissions(); // Filter out completed missions
-                updateCompleted(); // Update completed tab
-                updateStats(); // Update stats
-                if (currentMember && currentMember.role === 'parent') {
-                    updateQueue(); // Update parent queue
-                    updateDashboard(); // Update parent dashboard
-                }
-            }));
-            
-            unsubAll.push(onSnapshot(query(collection(db, 'pointsLedger'), where('familyId', '==', currentFamily.id)), s => {
-                pointsHistory = []; s.forEach(d => pointsHistory.push({ id: d.id, ...d.data() })); updateStats();
-            }));
-            
-            updateUI();
-        }
-
-        function updateUI() {
-            // Handle no family state
-            if (!currentFamily) {
-                document.getElementById('noFamilyState').classList.remove('hidden');
-                document.querySelectorAll('.stats-grid, .nav-tabs, #choresTab, #tasksTab, #approvalsTabContent, #settingsTab').forEach(el => {
-                    if (el) el.style.display = 'none';
-                });
-                return;
-            }
-            
-            // Hide no family state, show app content
-            document.getElementById('noFamilyState').classList.add('hidden');
-            document.querySelectorAll('.stats-grid, .nav-tabs').forEach(el => {
-                if (el) el.style.display = '';
-            });
-            
-            if (!currentMember) return;
-            const isParent = currentMember.role === 'parent';
-            
-            // Show/hide parent-only tabs
-            document.getElementById('queueTab').style.display = isParent ? '' : 'none';
-            document.getElementById('completedTabBtn').style.display = ''; // Show for everyone
-            document.getElementById('dashboardTab').style.display = isParent ? '' : 'none';
-            
-            // Show/hide parent-only elements
-            document.getElementById('parentSettings').style.display = isParent ? 'block' : 'none';
-            document.getElementById('addMemberBtn').style.display = isParent ? 'block' : 'none';
-            const addMissionBtn = document.getElementById('addMissionBtn');
-            if (addMissionBtn) addMissionBtn.style.display = (isParent || currentFamily.settings.kidsCanCreateTasks) ? 'block' : 'none';
-            
-            // Update "My Pending Missions" count for everyone
-            if (isParent) {
-                // Parents see total pending approvals
-                const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
-                const pendingTasks = tasks.filter(t => t.status === 'submitted').length;
-                document.getElementById('pendingMissions').textContent = pendingSubmissions + pendingTasks;
+        ball.addEventListener('click', () => {
+            if (isVisible) {
+                hideFortune();
             } else {
-                // Kids see their own pending missions (submitted awaiting approval + pending approval requests)
-                const mySubmissions = submissions.filter(s => s.status === 'pending' && s.userId === currentUser.uid).length;
-                const myTasks = tasks.filter(t => t.status === 'submitted' && t.submittedBy === currentUser.uid).length;
-                const myPendingRequests = missions.filter(m => m.status === 'pending_approval' && m.requestedBy === currentUser.uid).length;
-                document.getElementById('pendingMissions').textContent = mySubmissions + myTasks + myPendingRequests;
+                showFortune();
             }
-            
-            // Update completed list for everyone
-            updateCompleted();
-            
-            // Update queue and dashboard for parents only
-            if (isParent) {
-                updateQueue();
-                updateDashboard();
-            }
-            
-            // Update checkbox states
-            if (isParent) {
-                document.getElementById('streaksToggle').checked = currentFamily.settings.streaksEnabled;
-                document.getElementById('kidsTasksToggle').checked = currentFamily.settings.kidsCanCreateTasks;
-            }
-        }
-
-        function updateStats() {
-            const up = pointsHistory.filter(p => p.userId === currentUser.uid);
-            const now = new Date(), sod = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            const sow = new Date(now); sow.setDate(now.getDate() - now.getDay()); sow.setHours(0,0,0,0);
-            const som = new Date(now.getFullYear(), now.getMonth(), 1);
-            
-            document.getElementById('todayPoints').textContent = up.filter(p => p.awardedAt && p.awardedAt.toDate() >= sod).reduce((s, p) => s + p.points, 0);
-            document.getElementById('weekPoints').textContent = up.filter(p => p.awardedAt && p.awardedAt.toDate() >= sow).reduce((s, p) => s + p.points, 0);
-            document.getElementById('monthPoints').textContent = up.filter(p => p.awardedAt && p.awardedAt.toDate() >= som).reduce((s, p) => s + p.points, 0);
-            document.getElementById('lifetimePoints').textContent = up.reduce((s, p) => s + p.points, 0);
-            
-            if (currentMember?.role === 'parent') {
-                const pc = submissions.filter(s => s.status === 'pending').length + tasks.filter(t => t.status === 'submitted').length;
-                const pendingCountEl = document.getElementById('pendingCount');
-                if (pendingCountEl) {
-                    pendingCountEl.textContent = pc;
-                }
-            }
-        }
-
-        function updateChores() {
-            const list = document.getElementById('choresList');
-            const vc = chores.filter(c => c.isActive && (c.assignedTo.length === 0 || c.assignedTo.includes(currentUser.uid)));
-            if (vc.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🧹</div><p>No chores yet</p></div>';
-                return;
-            }
-            list.innerHTML = vc.map(c => `
-                <div class="card" onclick="showCompleteChore('${c.id}')">
-                    <div class="card-header">
-                        <div class="card-title">${c.name}</div>
-                        <span class="card-badge points">${c.points} pts</span>
-                    </div>
-                    <div class="card-body">${c.description || ''}<div class="card-meta"><span>📅 ${c.frequency}</span></div></div>
-                </div>
-            `).join('');
-        }
-
-        function updateTasks() {
-            const list = document.getElementById('tasksList');
-            const vt = tasks.filter(t => t.assignedTo === currentUser.uid || t.createdBy === currentUser.uid);
-            if (vt.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No tasks yet</p></div>';
-                return;
-            }
-            list.innerHTML = vt.map(t => {
-                const sc = t.status === 'submitted' ? 'pending' : '';
-                const cc = t.assignedTo === currentUser.uid && t.status === 'open';
-                return `
-                    <div class="card ${sc}">
-                        <div class="card-header">
-                            <div class="card-title">${t.title}</div>
-                            <span class="card-badge points">${t.points} pts</span>
-                        </div>
-                        <div class="card-body"><div class="card-meta"><span>Status: ${t.status}</span></div></div>
-                        ${cc ? `<div class="card-actions"><button class="card-btn primary" onclick="event.stopPropagation(); completeTask('${t.id}')">Complete</button></div>` : ''}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateMembers() {
-            const list = document.getElementById('familyMembersList');
-            list.innerHTML = familyMembers.map(m => {
-                const io = m.userId === currentFamily.ownerId;
-                const cr = currentMember.role === 'parent' && !io;
-                return `
-                    <div class="member-item">
-                        <div class="member-info">
-                            <div class="member-name">${m.displayName}</div>
-                            <div class="member-email">${m.email}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span class="member-role ${m.role}">${m.role}</span>
-                            <span class="member-status ${m.status}">${m.status}</span>
-                            ${cr ? `<button class="remove-btn" onclick="removeMember('${m.id}')">Remove</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateAssignees() {
-            const am = familyMembers.filter(m => m.status === 'active');
-            document.getElementById('taskAssignee').innerHTML = '<option value="">Select...</option>' + 
-                am.map(m => `<option value="${m.userId}">${m.displayName}</option>`).join('');
-            document.getElementById('choreAssignee').innerHTML = '<option value="">Unassigned (Anyone can do)</option>' + 
-                am.map(m => `<option value="${m.userId}">${m.displayName}</option>`).join('');
-            document.getElementById('missionAssignee').innerHTML = '<option value="">Unassigned (Anyone can do)</option>' + 
-                am.map(m => `<option value="${m.userId}">${m.displayName}</option>`).join('');
-        }
-
-        window.addChore = async () => {
-            const name = document.getElementById('choreName').value.trim();
-            if (!name) return alert('Enter chore name');
-            
-            const assigneeSelect = document.getElementById('choreAssignee');
-            const selectedOptions = Array.from(assigneeSelect.selectedOptions);
-            const assignedTo = selectedOptions
-                .map(opt => opt.value)
-                .filter(val => val !== ''); // Filter out "Unassigned" option
-            
-            const dueDateInput = document.getElementById('choreDueDate').value;
-            const dueDate = dueDateInput ? new Date(dueDateInput + 'T23:59:59') : null;
-            
-            try {
-                await addDoc(collection(db, 'chores'), {
-                    familyId: currentFamily.id, 
-                    name, 
-                    description: document.getElementById('choreDescription').value.trim(),
-                    points: selectedPoints, 
-                    frequency: document.getElementById('choreFrequency').value,
-                    assignedTo: assignedTo,
-                    dueDate: dueDate ? Timestamp.fromDate(dueDate) : null,
-                    createdBy: currentUser.uid, 
-                    createdAt: serverTimestamp(), 
-                    isActive: true
-                });
-                closeModal('addChoreModal');
-                document.getElementById('choreName').value = ''; 
-                document.getElementById('choreDescription').value = '';
-                document.getElementById('choreDueDate').value = '';
-                assigneeSelect.selectedIndex = 0;
-            } catch (e) { console.error(e); alert('Failed to add chore'); }
-        };
-
-        window.addTask = async () => {
-            const title = document.getElementById('taskTitle').value.trim();
-            const assignedTo = document.getElementById('taskAssignee').value;
-            if (!title || !assignedTo) return alert('Fill all fields');
-            
-            const dueDateInput = document.getElementById('taskDueDate').value;
-            const dueDate = dueDateInput ? new Date(dueDateInput + 'T23:59:59') : null;
-            
-            try {
-                await addDoc(collection(db, 'tasks'), {
-                    familyId: currentFamily.id, title, points: selectedTaskPoints, assignedTo,
-                    dueDate: dueDate ? Timestamp.fromDate(dueDate) : null,
-                    createdBy: currentUser.uid, status: 'open', createdAt: serverTimestamp()
-                });
-                closeModal('addTaskModal');
-                document.getElementById('taskTitle').value = ''; 
-                document.getElementById('taskAssignee').value = '';
-                document.getElementById('taskDueDate').value = '';
-            } catch (e) { console.error(e); alert('Failed to add task'); }
-        };
-
-        window.addMission = async () => {
-            const name = document.getElementById('missionName').value.trim();
-            if (!name) return alert('Enter mission name');
-            
-            const isParent = currentMember && currentMember.role === 'parent';
-            const dueDateInput = document.getElementById('missionDueDate').value;
-            const dueDate = dueDateInput ? new Date(dueDateInput + 'T23:59:59') : null;
-            
-            try {
-                if (isParent) {
-                    // Parent creates mission normally
-                    const isSideMission = document.getElementById('isSideMission').checked;
-                    const assigneeSelect = document.getElementById('missionAssignee');
-                    const selectedOptions = Array.from(assigneeSelect.selectedOptions);
-                    const assignedTo = selectedOptions.map(opt => opt.value).filter(val => val !== '');
-                    
-                    await addDoc(collection(db, 'missions'), {
-                        familyId: currentFamily.id,
-                        name,
-                        description: document.getElementById('missionDescription').value.trim(),
-                        points: selectedMissionPoints,
-                        assignedTo: assignedTo,
-                        dueDate: dueDate ? Timestamp.fromDate(dueDate) : null,
-                        isSideMission: isSideMission,
-                        createdBy: currentUser.uid,
-                        createdAt: serverTimestamp(),
-                        isActive: true,
-                        status: 'active'
-                    });
-                } else {
-                    // Kid creates mission request (goes to parent approval queue)
-                    await addDoc(collection(db, 'missions'), {
-                        familyId: currentFamily.id,
-                        name,
-                        description: document.getElementById('missionDescription').value.trim(),
-                        points: 0, // Parent will set
-                        assignedTo: [currentUser.uid], // Auto-assign to self
-                        dueDate: dueDate ? Timestamp.fromDate(dueDate) : null,
-                        isSideMission: false,
-                        createdBy: currentUser.uid,
-                        createdAt: serverTimestamp(),
-                        isActive: false, // Inactive until parent approves
-                        status: 'pending_approval',
-                        requestedBy: currentUser.uid
-                    });
-                    alert('Mission request sent to parent for approval!');
-                }
-                
-                closeModal('addMissionModal');
-                document.getElementById('missionName').value = '';
-                document.getElementById('missionDescription').value = '';
-                document.getElementById('missionDueDate').value = '';
-                document.getElementById('isSideMission').checked = false;
-            } catch (e) { console.error(e); alert('Failed to add mission'); }
-        };
-
-        function updateMissions() {
-            const list = document.getElementById('missionsList');
-            
-            // Only show missions that are active (not completed)
-            const visibleMissions = missions.filter(m => 
-                m.isActive === true &&
-                m.status === 'active' &&
-                (m.assignedTo.length === 0 || m.assignedTo.includes(currentUser.uid))
-            );
-            
-            if (visibleMissions.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎯</div><p>No missions yet</p></div>';
-                return;
-            }
-            
-            list.innerHTML = visibleMissions.map(m => {
-                const isOverdue = m.dueDate && new Date() > (m.dueDate.toDate ? m.dueDate.toDate() : new Date(m.dueDate));
-                const pointsClass = m.isSideMission ? 'side-mission-points' : 'points';
-                
-                // Check if this mission has a pending submission from current user
-                const hasPendingSubmission = submissions.some(s => 
-                    s.choreId === m.id && 
-                    s.status === 'pending' && 
-                    s.userId === currentUser.uid
-                );
-                
-                return `
-                    <div class="card ${hasPendingSubmission ? 'pending' : ''}" 
-                         ${hasPendingSubmission ? 'style="opacity: 0.7; cursor: default;"' : `onclick="showCompleteMission('${m.id}')"`}>
-                        <div class="card-header">
-                            <div class="card-title">
-                                ${m.name}
-                                ${m.isSideMission ? '<span class="card-badge side-mission">⭐ SIDE MISSION</span>' : ''}
-                                ${hasPendingSubmission ? '<span class="card-badge" style="background: #fbbf24;">⏳ PENDING APPROVAL</span>' : ''}
-                            </div>
-                            <span class="card-badge ${pointsClass}">${m.points} pts</span>
-                        </div>
-                        <div class="card-body">
-                            ${m.description ? `<p>${m.description}</p>` : ''}
-                            ${m.dueDate ? `<p style="color: ${isOverdue ? '#dc2626' : '#666'}">Due: ${(m.dueDate.toDate ? m.dueDate.toDate() : new Date(m.dueDate)).toLocaleDateString()}${isOverdue ? ' ⚠️ OVERDUE' : ''}</p>` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateQueue() {
-            const list = document.getElementById('queueList');
-            
-            // Get pending approvals (completed missions awaiting review)
-            const pendingSubmissions = submissions.filter(s => s.status === 'pending');
-            const pendingTasks = tasks.filter(t => t.status === 'submitted');
-            
-            // Get mission requests (kids requesting new missions)
-            const pendingRequests = missions.filter(m => m.status === 'pending_approval');
-            
-            // Get active assigned missions (but exclude ones with pending submissions)
-            const activeMissions = missions.filter(m => {
-                // Must be active
-                if (m.status !== 'active' || m.isActive !== true) return false;
-                
-                // Check if this mission has a pending submission
-                const hasPendingSubmission = submissions.some(s => 
-                    s.choreId === m.id && s.status === 'pending'
-                );
-                
-                // DEBUG LOGGING
-                if (hasPendingSubmission) {
-                    console.log('🔍 DEBUG: Mission should be filtered out:', {
-                        missionId: m.id,
-                        missionName: m.name,
-                        hasPendingSubmission: true,
-                        matchingSubmissions: submissions.filter(s => s.choreId === m.id && s.status === 'pending')
-                    });
-                }
-                
-                // Don't show if it has a pending submission
-                return !hasPendingSubmission;
-            });
-            
-            console.log('📊 DEBUG: updateQueue() called', {
-                totalMissions: missions.length,
-                activeMissionsCount: missions.filter(m => m.status === 'active' && m.isActive === true).length,
-                filteredActiveMissions: activeMissions.length,
-                pendingSubmissionsCount: pendingSubmissions.length,
-                submissionsArray: submissions.map(s => ({ id: s.id, choreId: s.choreId, status: s.status }))
-            });
-            
-            if (pendingSubmissions.length === 0 && pendingTasks.length === 0 && pendingRequests.length === 0 && activeMissions.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>Nothing in queue</p></div>';
-                return;
-            }
-            
-            let html = '';
-            
-            // SECTION 1: Pending Approvals
-            if (pendingSubmissions.length > 0 || pendingTasks.length > 0) {
-                html += '<h3 style="color: #333; margin: 20px 0 15px 0; font-size: 1.1em;">⏳ Pending Approvals</h3>';
-                
-                pendingSubmissions.forEach(s => {
-                    const m = missions.find(x => x.id === s.choreId) || chores.find(x => x.id === s.choreId);
-                    const member = familyMembers.find(x => x.userId === s.userId);
-                    html += `
-                        <div class="card pending" onclick="showReview('${s.id}', 'chore')">
-                            <div class="card-header">
-                                <div class="card-title">${m?.isSideMission ? '⭐' : '🧹'} ${m?.name || 'Unknown'}</div>
-                                <span class="card-badge points">${m?.points || 0} pts</span>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>By:</strong> ${member?.displayName || 'Unknown'}</p>
-                                ${s.notes ? `<p>${s.notes}</p>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                pendingTasks.forEach(t => {
-                    const member = familyMembers.find(x => x.userId === t.submittedBy);
-                    html += `
-                        <div class="card pending" onclick="showReview('${t.id}', 'task')">
-                            <div class="card-header">
-                                <div class="card-title">📋 ${t.title}</div>
-                                <span class="card-badge points">${t.points} pts</span>
-                            </div>
-                            <div class="card-body">
-                                <p><strong>By:</strong> ${member?.displayName || 'Unknown'}</p>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            // SECTION 2: Mission Requests from Kids
-            if (pendingRequests.length > 0) {
-                html += '<h3 style="color: #333; margin: 20px 0 15px 0; font-size: 1.1em;">📝 Mission Requests</h3>';
-                
-                pendingRequests.forEach(m => {
-                    const requester = familyMembers.find(fm => fm.userId === m.requestedBy);
-                    html += `
-                        <div class="card" onclick="approveMissionRequest('${m.id}')">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    ${m.name}
-                                    <span class="card-badge" style="background: #fbbf24;">⏳ NEEDS APPROVAL</span>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                ${m.description ? `<p>${m.description}</p>` : ''}
-                                <p><strong>Requested by:</strong> ${requester?.displayName || 'Unknown'}</p>
-                                ${m.dueDate ? `<p><strong>Due:</strong> ${(m.dueDate.toDate ? m.dueDate.toDate() : new Date(m.dueDate)).toLocaleDateString()}</p>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            // SECTION 3: Active Missions (assigned to kids)
-            if (activeMissions.length > 0) {
-                html += '<h3 style="color: #333; margin: 20px 0 15px 0; font-size: 1.1em;">🎯 Active Missions</h3>';
-                
-                activeMissions.forEach(m => {
-                    const assignees = m.assignedTo.map(id => familyMembers.find(fm => fm.userId === id)?.displayName || 'Unknown').join(', ') || 'Unassigned';
-                    const isOverdue = m.dueDate && new Date() > (m.dueDate.toDate ? m.dueDate.toDate() : new Date(m.dueDate));
-                    
-                    html += `
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">
-                                    ${m.name}
-                                    ${m.isSideMission ? '<span class="card-badge side-mission">⭐ SIDE MISSION</span>' : ''}
-                                </div>
-                                <span class="card-badge ${m.isSideMission ? 'side-mission-points' : 'points'}">${m.points} pts</span>
-                            </div>
-                            <div class="card-body">
-                                ${m.description ? `<p>${m.description}</p>` : ''}
-                                <p><strong>Assigned to:</strong> ${assignees}</p>
-                                ${m.dueDate ? `<p style="color: ${isOverdue ? '#dc2626' : '#666'}">Due: ${(m.dueDate.toDate ? m.dueDate.toDate() : new Date(m.dueDate)).toLocaleDateString()}${isOverdue ? ' ⚠️ OVERDUE' : ''}</p>` : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            list.innerHTML = html;
-            
-            // Update Queue count badge
-            const totalPending = pendingSubmissions.length + pendingTasks.length;
-            const queueCountEl = document.getElementById('queueCount');
-            if (queueCountEl) {
-                if (totalPending > 0) {
-                    queueCountEl.textContent = totalPending;
-                    queueCountEl.style.display = 'inline';
-                } else {
-                    queueCountEl.style.display = 'none';
-                }
-            }
-        }
-
-        function updateCompleted() {
-            const list = document.getElementById('completedList');
-            const isParent = currentMember && currentMember.role === 'parent';
-            
-            // Get completed items
-            let completedItems = [
-                ...submissions.filter(s => s.status === 'approved').map(s => ({
-                    type: 'mission',
-                    ...s,
-                    mission: missions.find(m => m.id === s.choreId) || chores.find(c => c.id === s.choreId)
-                })),
-                ...tasks.filter(t => t.status === 'approved').map(t => ({
-                    type: 'task',
-                    ...t
-                }))
-            ];
-            
-            // Kids only see their own completed items
-            if (!isParent) {
-                completedItems = completedItems.filter(item => 
-                    (item.userId === currentUser.uid) || (item.submittedBy === currentUser.uid)
-                );
-            }
-            
-            completedItems.sort((a, b) => {
-                const aTime = a.reviewedAt?.toMillis ? a.reviewedAt.toMillis() : 0;
-                const bTime = b.reviewedAt?.toMillis ? b.reviewedAt.toMillis() : 0;
-                return bTime - aTime;
-            });
-            
-            if (completedItems.length === 0) {
-                list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><p>No completed missions yet</p></div>';
-                return;
-            }
-            
-            list.innerHTML = completedItems.map(item => {
-                const member = familyMembers.find(m => m.userId === (item.userId || item.submittedBy));
-                const name = item.type === 'mission' ? item.mission?.name : item.title;
-                const points = item.pointsAwarded || item.points;
-                
-                return `
-                    <div class="card" style="opacity: 0.7;">
-                        <div class="card-header">
-                            <div class="card-title">${name}${item.mission?.isSideMission ? ' ⭐' : ''}</div>
-                            <span class="card-badge points">${points} pts</span>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>Completed by:</strong> ${member?.displayName || 'Unknown'}</p>
-                            <p><strong>Approved:</strong> ${(item.reviewedAt?.toDate ? item.reviewedAt.toDate() : new Date()).toLocaleDateString()}</p>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateDashboard() {
-            const content = document.getElementById('dashboardContent');
-            const activeMembers = familyMembers.filter(m => m.status === 'active');
-            
-            // Calculate stats per member
-            const memberStats = activeMembers.map(member => {
-                const memberPoints = pointsHistory.filter(p => p.userId === member.userId);
-                const totalPoints = memberPoints.reduce((sum, p) => sum + p.points, 0);
-                const thisWeek = memberPoints.filter(p => {
-                    const date = p.awardedAt?.toDate ? p.awardedAt.toDate() : new Date();
-                    const weekAgo = new Date();
-                    weekAgo.setDate(weekAgo.getDate() - 7);
-                    return date >= weekAgo;
-                }).reduce((sum, p) => sum + p.points, 0);
-                
-                const memberMissions = missions.filter(m => 
-                    m.assignedTo.includes(member.userId) && m.status === 'active'
-                ).length;
-                
-                return { member, totalPoints, thisWeek, activeMissions: memberMissions };
-            });
-            
-            content.innerHTML = `
-                <div style="margin-bottom: 30px;">
-                    <h3 style="color: #333; margin-bottom: 15px;">Family Overview</h3>
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">${missions.filter(m => m.status === 'active' && m.isActive === true).length}</div>
-                            <div class="stat-label">Active Missions</div>
-                        </div>
-                        <div class="stat-card alt">
-                            <div class="stat-value">${missions.filter(m => m.status === 'pending_approval').length}</div>
-                            <div class="stat-label">Pending Requests</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">${submissions.filter(s => s.status === 'pending').length + tasks.filter(t => t.status === 'submitted').length}</div>
-                            <div class="stat-label">Awaiting Approval</div>
-                        </div>
-                        <div class="stat-card alt">
-                            <div class="stat-value">${pointsHistory.reduce((sum, p) => sum + p.points, 0)}</div>
-                            <div class="stat-label">Total Family Points</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <h3 style="color: #333; margin-bottom: 15px;">Individual Members</h3>
-                ${memberStats.map(stat => `
-                    <div class="card" style="margin-bottom: 15px;">
-                        <div class="card-header">
-                            <div class="card-title">${stat.member.displayName}</div>
-                            <span class="card-badge points">${stat.totalPoints} pts</span>
-                        </div>
-                        <div class="card-body">
-                            <p><strong>This Week:</strong> ${stat.thisWeek} points</p>
-                            <p><strong>Active Missions:</strong> ${stat.activeMissions}</p>
-                            <p><strong>Role:</strong> ${stat.member.role === 'parent' ? '👨‍👩‍👧‍👦 Parent' : '👶 Kid'}</p>
-                        </div>
-                    </div>
-                `).join('')}
-            `;
-        }
-
-        window.clearCompleted = async () => {
-            if (!confirm('Clear all completed missions from the list? This cannot be undone.')) return;
-            
-            const isParent = currentMember && currentMember.role === 'parent';
-            
-            try {
-                let completedSubmissions, completedTasks;
-                
-                if (isParent) {
-                    // Parents clear all
-                    completedSubmissions = submissions.filter(s => s.status === 'approved');
-                    completedTasks = tasks.filter(t => t.status === 'approved');
-                } else {
-                    // Kids clear only their own - use OR logic to match display
-                    completedSubmissions = submissions.filter(s => 
-                        s.status === 'approved' && 
-                        (s.userId === currentUser.uid || s.submittedBy === currentUser.uid)
-                    );
-                    completedTasks = tasks.filter(t => 
-                        t.status === 'approved' && 
-                        (t.submittedBy === currentUser.uid || t.userId === currentUser.uid)
-                    );
-                }
-                
-                for (const sub of completedSubmissions) {
-                    await deleteDoc(doc(db, 'choreSubmissions', sub.id));
-                }
-                for (const task of completedTasks) {
-                    await deleteDoc(doc(db, 'tasks', task.id));
-                }
-                
-                alert('Completed list cleared!');
-            } catch (e) {
-                console.error(e);
-                alert('Failed to clear completed list');
-            }
-        };
-
-        window.archiveMission = async (missionId) => {
-            if (!confirm('Archive this mission? It will be removed from the queue.')) return;
-            
-            try {
-                await updateDoc(doc(db, 'missions', missionId), {
-                    isActive: false,
-                    archivedAt: serverTimestamp(),
-                    archivedBy: currentUser.uid
-                });
-                alert('Mission archived');
-            } catch (e) {
-                console.error(e);
-                alert('Failed to archive mission');
-            }
-        };
-
-        window.resetFamilyData = async () => {
-            if (!confirm('⚠️ WARNING: This will DELETE ALL missions, points, and history for your entire family. This CANNOT be undone.\n\nFamily members and settings will be kept.\n\nAre you absolutely sure?')) return;
-            
-            if (!confirm('This is your last chance. Type YES in the next prompt to confirm.')) return;
-            
-            const confirmation = prompt('Type YES in all caps to confirm deletion:');
-            if (confirmation !== 'YES') {
-                alert('Reset cancelled');
-                return;
-            }
-            
-            try {
-                // Delete all missions
-                const missionsToDelete = missions.filter(m => m.familyId === currentFamily.id);
-                for (const mission of missionsToDelete) {
-                    await deleteDoc(doc(db, 'missions', mission.id));
-                }
-                
-                // Delete all submissions
-                const submissionsToDelete = submissions.filter(s => s.familyId === currentFamily.id);
-                for (const submission of submissionsToDelete) {
-                    await deleteDoc(doc(db, 'choreSubmissions', submission.id));
-                }
-                
-                // Delete all tasks
-                const tasksToDelete = tasks.filter(t => t.familyId === currentFamily.id);
-                for (const task of tasksToDelete) {
-                    await deleteDoc(doc(db, 'tasks', task.id));
-                }
-                
-                // Delete all chores (legacy)
-                const choresToDelete = chores.filter(c => c.familyId === currentFamily.id);
-                for (const chore of choresToDelete) {
-                    await deleteDoc(doc(db, 'chores', chore.id));
-                }
-                
-                // Delete all points history
-                const pointsToDelete = pointsHistory.filter(p => p.familyId === currentFamily.id);
-                for (const point of pointsToDelete) {
-                    await deleteDoc(doc(db, 'pointsLedger', point.id));
-                }
-                
-                // Force update dashboard to reflect cleared data
-                if (currentMember && currentMember.role === 'parent') {
-                    updateDashboard();
-                }
-                
-                alert('✅ All family data has been reset! Starting fresh.');
-            } catch (e) {
-                console.error('Error resetting family data:', e);
-                alert('Failed to reset family data. Please try again.');
-            }
-        };
-
-        window.approveMissionRequest = (id) => {
-            const mission = missions.find(m => m.id === id);
-            if (!mission || mission.status !== 'pending_approval') return;
-            
-            // Pre-fill edit modal with mission data
-            document.getElementById('editMissionId').value = id;
-            document.getElementById('editMissionName').value = mission.name;
-            document.getElementById('editMissionDescription').value = mission.description || '';
-            document.getElementById('editMissionDueDate').value = mission.dueDate ? 
-                (mission.dueDate.toDate ? mission.dueDate.toDate() : new Date(mission.dueDate)).toISOString().split('T')[0] : '';
-            
-            showModal('editMissionModal');
-        };
-
-        window.approveMissionEdit = async () => {
-            const id = document.getElementById('editMissionId').value;
-            const points = parseInt(document.getElementById('editMissionPoints').value) || 3;
-            const isSideMission = document.getElementById('editIsSideMission').checked;
-            const dueDateInput = document.getElementById('editMissionDueDate').value;
-            const dueDate = dueDateInput ? new Date(dueDateInput + 'T23:59:59') : null;
-            
-            try {
-                await updateDoc(doc(db, 'missions', id), {
-                    points,
-                    isSideMission,
-                    dueDate: dueDate ? Timestamp.fromDate(dueDate) : null,
-                    status: 'active',
-                    isActive: true,
-                    approvedBy: currentUser.uid,
-                    approvedAt: serverTimestamp()
-                });
-                
-                closeModal('editMissionModal');
-                alert('Mission approved!');
-            } catch (e) {
-                console.error(e);
-                alert('Failed to approve mission');
-            }
-        };
-
-        window.addFamilyMember = async () => {
-            const email = document.getElementById('memberEmail').value.trim().toLowerCase();
-            const name = document.getElementById('memberName').value.trim();
-            const role = document.getElementById('memberRole').value;
-            if (!email || !name) return alert('Fill all fields');
-            if (familyMembers.find(m => m.email === email)) return alert('Email already exists');
-            try {
-                await addDoc(collection(db, 'familyMembers'), {
-                    familyId: currentFamily.id, userId: null, email, displayName: name, role, status: 'pending',
-                    invitedAt: serverTimestamp(), settings: { streaksEnabled: true }
-                });
-                closeModal('addMemberModal');
-                document.getElementById('memberEmail').value = ''; document.getElementById('memberName').value = '';
-                alert(`Invite sent to ${email}`);
-            } catch (e) { console.error(e); alert('Failed to add member'); }
-        };
-
-        window.showCompleteMission = (id) => {
-            const mission = missions.find(m => m.id === id);
-            if (!mission) return;
-            
-            const isParent = currentMember && currentMember.role === 'parent';
-            const isSelfAssigned = mission.assignedTo.length === 1 && mission.assignedTo[0] === currentUser.uid;
-            
-            // Always show modal for everyone
-            document.getElementById('completeMissionInfo').innerHTML = `
-                <div class="card-body">
-                    <p><strong>Mission:</strong> ${mission.name}${mission.isSideMission ? ' ⭐' : ''}</p>
-                    <p><strong>Points:</strong> ${mission.points}</p>
-                </div>
-            `;
-            document.getElementById('missionNotes').value = '';
-            
-            // Change button text for parent self-assigned missions
-            const submitBtn = document.getElementById('completeMissionBtn');
-            if (isParent && isSelfAssigned) {
-                submitBtn.textContent = 'Complete';
-            } else {
-                submitBtn.textContent = 'Submit for Approval';
-            }
-            
-            window.selectedMission = mission;
-            showModal('completeMissionModal');
-        };
-
-        async function completeSelfMission(mission) {
-            try {
-                // Calculate points with decay if overdue
-                let finalPoints = mission.points;
-                if (mission.dueDate) {
-                    const dueDate = mission.dueDate.toDate ? mission.dueDate.toDate() : new Date(mission.dueDate);
-                    const now = new Date();
-                    const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
-                    if (daysOverdue > 0) {
-                        const decayPercent = Math.min(daysOverdue * 10, 90);
-                        finalPoints = Math.max(Math.round(mission.points * (1 - decayPercent / 100)), 1);
-                    }
-                }
-                
-                // Add to points ledger
-                await addDoc(collection(db, 'pointsLedger'), {
-                    familyId: currentFamily.id,
-                    userId: currentUser.uid,
-                    points: finalPoints,
-                    source: 'mission',
-                    sourceId: mission.id,
-                    awardedBy: currentUser.uid,
-                    awardedAt: serverTimestamp(),
-                    description: `Completed: ${mission.name}${mission.isSideMission ? ' ⭐' : ''}${finalPoints < mission.points ? ` (${mission.points - finalPoints} pts deducted for late)` : ''}`
-                });
-                
-                // Create completed submission record
-                await addDoc(collection(db, 'choreSubmissions'), {
-                    familyId: currentFamily.id,
-                    choreId: mission.id,
-                    userId: currentUser.uid,
-                    submittedAt: serverTimestamp(),
-                    status: 'approved',
-                    reviewedBy: currentUser.uid,
-                    reviewedAt: serverTimestamp(),
-                    pointsAwarded: finalPoints,
-                    notes: 'Self-completed',
-                    isMission: true
-                });
-                
-                // Mark the mission itself as completed
-                await updateDoc(doc(db, 'missions', mission.id), {
-                    isActive: false,
-                    completedAt: serverTimestamp(),
-                    completedBy: currentUser.uid
-                });
-                
-                alert(`Mission completed! +${finalPoints} points`);
-            } catch (e) {
-                console.error('Error completing mission:', e);
-                alert('Failed to complete mission');
-            }
-        }
-
-        window.submitMissionCompletion = async () => {
-            if (!window.selectedMission) return;
-            
-            const isParent = currentMember && currentMember.role === 'parent';
-            const isSelfAssigned = window.selectedMission.assignedTo.length === 1 && 
-                                   window.selectedMission.assignedTo[0] === currentUser.uid;
-            
-            try {
-                if (isParent && isSelfAssigned) {
-                    // Parent self-assigned: auto-approve and complete immediately
-                    await completeSelfMission(window.selectedMission);
-                    closeModal('completeMissionModal');
-                    window.selectedMission = null;
-                } else {
-                    // Kid or parent assigning to others: submit for approval
-                    await addDoc(collection(db, 'choreSubmissions'), {
-                        familyId: currentFamily.id,
-                        choreId: window.selectedMission.id,
-                        userId: currentUser.uid,
-                        submittedAt: serverTimestamp(),
-                        status: 'pending',
-                        notes: document.getElementById('missionNotes').value.trim(),
-                        isMission: true
-                    });
-                    closeModal('completeMissionModal');
-                    window.selectedMission = null;
-                    alert('Mission submitted for approval!');
-                }
-            } catch (e) { console.error(e); alert('Failed to submit'); }
-        };
-
-        window.showCompleteChore = (id) => {
-            selectedChore = chores.find(c => c.id === id);
-            if (!selectedChore) return;
-            document.getElementById('completeChoreInfo').innerHTML = `
-                <div class="card-body"><p><strong>Chore:</strong> ${selectedChore.name}</p><p><strong>Points:</strong> ${selectedChore.points}</p></div>
-            `;
-            document.getElementById('choreNotes').value = '';
-            showModal('completeChoreModal');
-        };
-
-        window.submitChoreCompletion = async () => {
-            if (!selectedChore) return;
-            try {
-                await addDoc(collection(db, 'choreSubmissions'), {
-                    familyId: currentFamily.id, choreId: selectedChore.id, userId: currentUser.uid,
-                    submittedAt: serverTimestamp(), status: 'pending', notes: document.getElementById('choreNotes').value.trim()
-                });
-                closeModal('completeChoreModal'); selectedChore = null; alert('Submitted!');
-            } catch (e) { console.error(e); alert('Failed to submit'); }
-        };
-
-        window.completeTask = async (id) => {
-            const t = tasks.find(x => x.id === id);
-            if (!t || t.assignedTo !== currentUser.uid) return;
-            if (confirm(`Mark "${t.title}" complete?`)) {
-                try {
-                    await updateDoc(doc(db, 'tasks', id), { status: 'submitted', submittedAt: serverTimestamp(), submittedBy: currentUser.uid });
-                    alert('Submitted!');
-                } catch (e) { console.error(e); alert('Failed'); }
-            }
-        };
-
-        window.showReview = (id, type) => {
-            if (type === 'chore') {
-                selectedSubmission = { ...submissions.find(s => s.id === id), type: 'chore' };
-                const c = missions.find(x => x.id === selectedSubmission.choreId) || chores.find(x => x.id === selectedSubmission.choreId);
-                const m = familyMembers.find(x => x.userId === selectedSubmission.userId);
-                document.getElementById('reviewInfo').innerHTML = `
-                    <div class="card-body">
-                        <p><strong>Mission:</strong> ${c?.name || 'Unknown'}${c?.isSideMission ? ' ⭐' : ''}</p>
-                        <p><strong>By:</strong> ${m?.displayName || 'Unknown'}</p>
-                        <p><strong>Points:</strong> ${c?.points || 0}</p>
-                    </div>
-                `;
-            } else {
-                const t = tasks.find(x => x.id === id);
-                selectedSubmission = { ...t, type: 'task' };
-                const m = familyMembers.find(x => x.userId === t.submittedBy);
-                document.getElementById('reviewInfo').innerHTML = `
-                    <div class="card-body"><p><strong>Task:</strong> ${t.title}</p><p><strong>By:</strong> ${m?.displayName}</p><p><strong>Points:</strong> ${t.points}</p></div>
-                `;
-            }
-            document.getElementById('rejectionReason').value = '';
-            document.getElementById('rejectionReasonGroup').style.display = 'none';
-            showModal('reviewModal');
-        };
-
-        window.reviewSubmission = async (action) => {
-            if (!selectedSubmission) return;
-            if (action === 'reject' && !document.getElementById('rejectionReason').value.trim()) {
-                document.getElementById('rejectionReasonGroup').style.display = 'block';
-                return alert('Provide reason');
-            }
-            try {
-                if (selectedSubmission.type === 'task') {
-                    const t = tasks.find(x => x.id === selectedSubmission.id);
-                    if (action === 'approve') {
-                        // Calculate point decay for overdue tasks
-                        let finalPoints = t.points;
-                        if (t.dueDate) {
-                            const dueDate = t.dueDate.toDate ? t.dueDate.toDate() : new Date(t.dueDate);
-                            const submittedDate = t.submittedAt?.toDate ? t.submittedAt.toDate() : new Date();
-                            const daysOverdue = Math.floor((submittedDate - dueDate) / (1000 * 60 * 60 * 24));
-                            if (daysOverdue > 0) {
-                                const decayPercent = Math.min(daysOverdue * 10, 90); // Max 90% decay
-                                finalPoints = Math.max(Math.round(t.points * (1 - decayPercent / 100)), 1); // Min 1 point
-                            }
-                        }
-                        
-                        await addDoc(collection(db, 'pointsLedger'), {
-                            familyId: currentFamily.id, userId: t.submittedBy, points: finalPoints, source: 'task',
-                            sourceId: t.id, awardedBy: currentUser.uid, awardedAt: serverTimestamp(), 
-                            description: `Completed: ${t.title}${finalPoints < t.points ? ` (${t.points - finalPoints} pts deducted for late)` : ''}`
-                        });
-                        await updateDoc(doc(db, 'tasks', t.id), { 
-                            status: 'approved', 
-                            reviewedBy: currentUser.uid, 
-                            reviewedAt: serverTimestamp(),
-                            pointsAwarded: finalPoints
-                        });
-                    } else {
-                        await updateDoc(doc(db, 'tasks', t.id), {
-                            status: 'rejected', reviewedBy: currentUser.uid, reviewedAt: serverTimestamp(),
-                            rejectionReason: document.getElementById('rejectionReason').value.trim()
-                        });
-                    }
-                } else {
-                    // Check missions first, then chores (for backward compatibility)
-                    let item = missions.find(x => x.id === selectedSubmission.choreId);
-                    if (!item) item = chores.find(x => x.id === selectedSubmission.choreId);
-                    if (!item) return alert('Mission/Chore not found');
-                    
-                    if (action === 'approve') {
-                        // Calculate point decay for overdue missions/chores
-                        let finalPoints = item.points;
-                        if (item.dueDate) {
-                            const dueDate = item.dueDate.toDate ? item.dueDate.toDate() : new Date(item.dueDate);
-                            const submittedDate = selectedSubmission.submittedAt?.toDate ? selectedSubmission.submittedAt.toDate() : new Date();
-                            const daysOverdue = Math.floor((submittedDate - dueDate) / (1000 * 60 * 60 * 24));
-                            if (daysOverdue > 0) {
-                                const decayPercent = Math.min(daysOverdue * 10, 90); // Max 90% decay
-                                finalPoints = Math.max(Math.round(item.points * (1 - decayPercent / 100)), 1); // Min 1 point
-                            }
-                        }
-                        
-                        await addDoc(collection(db, 'pointsLedger'), {
-                            familyId: currentFamily.id, userId: selectedSubmission.userId, points: finalPoints, source: 'chore',
-                            sourceId: selectedSubmission.id, awardedBy: currentUser.uid, awardedAt: serverTimestamp(), 
-                            description: `Completed: ${item.name}${item.isSideMission ? ' ⭐' : ''}${finalPoints < item.points ? ` (${item.points - finalPoints} pts deducted for late)` : ''}`
-                        });
-                        await updateDoc(doc(db, 'choreSubmissions', selectedSubmission.id), {
-                            status: 'approved', reviewedBy: currentUser.uid, reviewedAt: serverTimestamp(), pointsAwarded: finalPoints
-                        });
-                        
-                        // Mark the mission itself as completed
-                        const missionDoc = missions.find(x => x.id === selectedSubmission.choreId);
-                        if (missionDoc) {
-                            await updateDoc(doc(db, 'missions', missionDoc.id), {
-                                isActive: false,
-                                completedAt: serverTimestamp(),
-                                completedBy: selectedSubmission.userId
-                            });
-                        }
-                    } else {
-                        await updateDoc(doc(db, 'choreSubmissions', selectedSubmission.id), {
-                            status: 'rejected', reviewedBy: currentUser.uid, reviewedAt: serverTimestamp(),
-                            rejectionReason: document.getElementById('rejectionReason').value.trim()
-                        });
-                    }
-                }
-                closeModal('reviewModal'); selectedSubmission = null; alert(action === 'approve' ? 'Approved!' : 'Rejected');
-            } catch (e) { console.error(e); alert('Failed'); }
-        };
-
-        window.removeMember = async (id) => {
-            const m = familyMembers.find(x => x.id === id);
-            if (m && confirm(`Remove ${m.displayName}?`)) {
-                try { await deleteDoc(doc(db, 'familyMembers', id)); }
-                catch (e) { console.error(e); alert('Failed'); }
-            }
-        };
-
-        window.switchTab = (tab) => {
-            console.log('🔄 switchTab called with:', tab);
-            
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            
-            const tabs = { 
-                missions: 'missionsTab', 
-                queue: 'queueTabContent', 
-                completed: 'completedTab',
-                dashboard: 'dashboardTabContent',
-                settings: 'settingsTab',
-                chores: 'choresTab', 
-                tasks: 'tasksTab'
-            };
-            
-            const tabId = tabs[tab];
-            if (!tabId) {
-                console.error('❌ No tab mapping found for:', tab);
-                return;
-            }
-            
-            const tabElement = document.getElementById(tabId);
-            if (!tabElement) {
-                console.error('❌ Tab element not found:', tabId);
-                return;
-            }
-            
-            const navTab = document.querySelector(`.nav-tab[onclick*="${tab}"]`);
-            if (navTab) {
-                navTab.classList.add('active');
-            } else {
-                console.warn('⚠️ Nav tab not found for:', tab);
-            }
-            
-            console.log('✅ Showing tab:', tabId);
-            tabElement.classList.remove('hidden');
-        };
-
-        window.selectMissionPoints = (p, el) => {
-            selectedMissionPoints = p;
-            document.querySelectorAll('#addMissionModal .points-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-        };
-
-        window.selectPoints = (p, el) => {
-            selectedPoints = p;
-            document.querySelectorAll('#addChoreModal .points-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-        };
-
-        window.selectTaskPoints = (p, el) => {
-            selectedTaskPoints = p;
-            document.querySelectorAll('#addTaskModal .points-btn').forEach(b => b.classList.remove('selected'));
-            el.classList.add('selected');
-        };
-
-        window.showModal = (id) => {
-            document.getElementById(id).classList.add('active');
-            
-            // Special handling for Add Mission modal
-            if (id === 'addMissionModal') {
-                const isParent = currentMember && currentMember.role === 'parent';
-                
-                // For kids: hide points, side mission, and assignee
-                document.getElementById('missionPointsGroup').style.display = isParent ? 'block' : 'none';
-                document.getElementById('missionSideMissionGroup').style.display = isParent ? 'block' : 'none';
-                document.getElementById('missionAssigneeGroup').style.display = isParent ? 'block' : 'none';
-                
-                // Update modal title
-                document.getElementById('addMissionModalTitle').textContent = isParent ? 'Add Mission' : 'Request Mission';
-            }
-        };
-        window.closeModal = (id) => document.getElementById(id).classList.remove('active');
-
-        function showScreen(s) {
-            document.getElementById('loginScreen').classList.toggle('hidden', s !== 'login');
-            document.getElementById('setupScreen').classList.toggle('hidden', s !== 'setup');
-            document.getElementById('mainApp').classList.toggle('hidden', s !== 'main');
-            if (s === 'main' && currentUser.photoURL) document.getElementById('userAvatar').src = currentUser.photoURL;
-        }
-
-        window.openDisclaimer = () => {
-            document.getElementById('disclaimerDrawer').classList.add('open');
-            document.getElementById('disclaimerOverlay').classList.add('active');
-        };
-
-        window.closeDisclaimer = () => {
-            document.getElementById('disclaimerDrawer').classList.remove('open');
-            document.getElementById('disclaimerOverlay').classList.remove('active');
-        };
-
-        // Toggle Family Setting
-        window.toggleFamilySetting = async (setting) => {
-            if (!currentFamily || !currentMember || currentMember.role !== 'parent') return;
-            
-            const checkbox = document.getElementById(setting === 'streaksEnabled' ? 'streaksToggle' : 'kidsTasksToggle');
-            const newValue = checkbox.checked;
-
-            try {
-                await updateDoc(doc(db, 'families', currentFamily.id), {
-                    [`settings.${setting}`]: newValue
-                });
-            } catch (error) {
-                console.error('Error updating setting:', error);
-                alert('Failed to update setting. Please try again.');
-                checkbox.checked = !newValue; // Revert on error
-            }
-        };
-
-        // Theme management
-        const themes = {
-            default: { primaryStart: '#2c5f7a', primaryEnd: '#1a3a4a', accentPrimary: '#0d9488', accentSecondary: '#0f766e', accentBg: '#f0fdfa', balanceStart: '#0d9488', balanceEnd: '#0f766e' },
-            classic: { primaryStart: '#000000', primaryEnd: '#000000', accentPrimary: '#000000', accentSecondary: '#000000', accentBg: '#ffffff', balanceStart: '#000000', balanceEnd: '#000000' },
-            monochrome: { primaryStart: '#000000', primaryEnd: '#1a1a1a', accentPrimary: '#ef4444', accentSecondary: '#dc2626', accentBg: '#fee2e2', balanceStart: '#000000', balanceEnd: '#1a1a1a' },
-            pink: { primaryStart: '#fce7f3', primaryEnd: '#fbcfe8', accentPrimary: '#ec4899', accentSecondary: '#db2777', accentBg: '#fce7f3', balanceStart: '#fce7f3', balanceEnd: '#fbcfe8' },
-            purple: { primaryStart: '#581c87', primaryEnd: '#3b0764', accentPrimary: '#a855f7', accentSecondary: '#9333ea', accentBg: '#f3e8ff', balanceStart: '#a855f7', balanceEnd: '#9333ea' },
-            ocean: { primaryStart: '#0c4a6e', primaryEnd: '#082f49', accentPrimary: '#0ea5e9', accentSecondary: '#0284c7', accentBg: '#e0f2fe', balanceStart: '#0ea5e9', balanceEnd: '#0284c7' },
-            royal: { primaryStart: '#1e3a8a', primaryEnd: '#1e1b4b', accentPrimary: '#6366f1', accentSecondary: '#4f46e5', accentBg: '#e0e7ff', balanceStart: '#6366f1', balanceEnd: '#4f46e5' },
-            forest: { primaryStart: '#064e3b', primaryEnd: '#022c22', accentPrimary: '#10b981', accentSecondary: '#059669', accentBg: '#d1fae5', balanceStart: '#10b981', balanceEnd: '#059669' },
-            sunset: { primaryStart: '#7c2d12', primaryEnd: '#431407', accentPrimary: '#f97316', accentSecondary: '#ea580c', accentBg: '#ffedd5', balanceStart: '#f97316', balanceEnd: '#ea580c' }
-        };
-
-        window.showThemeModal = () => document.getElementById('themeModal').classList.add('active');
-
-        window.setTheme = (themeName) => {
-            const theme = themes[themeName];
-            if (!theme) return;
-            const root = document.documentElement;
-            root.style.setProperty('--primary-start', theme.primaryStart);
-            root.style.setProperty('--primary-end', theme.primaryEnd);
-            root.style.setProperty('--accent-primary', theme.accentPrimary);
-            root.style.setProperty('--accent-secondary', theme.accentSecondary);
-            root.style.setProperty('--accent-bg', theme.accentBg);
-            root.style.setProperty('--balance-start', theme.balanceStart);
-            root.style.setProperty('--balance-end', theme.balanceEnd);
-            localStorage.setItem('idkMyWeekTheme', themeName);
-            closeModal('themeModal');
-        };
-
-        // Load saved theme
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('idkMyWeekTheme') || 'default';
-            if (savedTheme && themes[savedTheme]) setTheme(savedTheme);
         });
     </script>
 </body>
