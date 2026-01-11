@@ -21,10 +21,11 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        /* HEADER - stays at top */
+        /* HEADER - stays at top center */
         .header {
             text-align: center;
             margin-bottom: 40px;
+            width: 100%;
         }
 
         .header h1 {
@@ -44,28 +45,26 @@
         }
 
         /* DESKTOP: 2-COLUMN LAYOUT */
-        .container {
+        .main-container {
             display: flex;
             flex-direction: row;
             align-items: center;
-            justify-content: center;
+            justify-content: space-around;
             width: 100%;
             max-width: 1400px;
             padding: 20px;
-            gap: 80px;
+            gap: 100px;
         }
 
-        .left-side {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .left-column {
+            flex: 0 0 auto;
         }
 
-        .right-side {
+        .right-column {
+            flex: 0 0 auto;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 30px;
         }
 
@@ -78,12 +77,13 @@
             line-height: 1.3;
         }
 
-        .right-buttons {
+        .desktop-buttons {
             display: flex;
+            flex-direction: row;
             gap: 20px;
         }
 
-        /* BALL - THE CENTER ANCHOR */
+        /* BALL */
         #ball {
             width: 450px;
             height: 450px;
@@ -96,7 +96,6 @@
             transition: transform 0.1s ease;
             user-select: none;
             overflow: hidden;
-            margin: 0px;
         }
 
         #ball:active {
@@ -175,7 +174,6 @@
         .impact-button {
             cursor: pointer;
             transition: transform 0.2s ease;
-            display: block;
         }
 
         .impact-button:hover {
@@ -188,13 +186,13 @@
             height: auto;
         }
 
+        /* Hide mobile elements on desktop */
+        .mobile-only {
+            display: none;
+        }
+
         /* MOBILE LAYOUT */
         @media (max-width: 768px) {
-            body {
-                display: flex;
-                flex-direction: column;
-            }
-
             .header {
                 margin-bottom: 0px;
             }
@@ -207,17 +205,20 @@
                 font-size: 18px;
             }
 
-            .container {
+            .main-container {
                 flex-direction: column;
                 gap: 0px;
                 padding: 10px;
             }
 
-            .left-side {
+            .left-column {
                 width: 100%;
+                display: flex;
+                justify-content: center;
             }
 
-            .right-side {
+            /* Hide desktop right column on mobile */
+            .right-column {
                 display: none;
             }
 
@@ -238,9 +239,14 @@
                 font-size: 9px;
             }
 
-            /* Show sub-headline */
-            .sub-headline {
+            /* Show mobile elements */
+            .mobile-only {
                 display: block;
+                width: 100%;
+            }
+
+            /* Mobile text */
+            .mobile-text {
                 text-align: center;
                 color: #ffffff;
                 font-size: 16px;
@@ -249,10 +255,9 @@
                 line-height: 1.3;
                 margin-top: 20px;
                 margin-bottom: 0px;
-                grid-column: 1 / -1;
             }
 
-            /* Grid layout for buttons */
+            /* Grid layout for mobile buttons */
             .mobile-buttons {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -267,24 +272,19 @@
                 max-width: 200px;
             }
         }
-
-        /* Desktop: hide mobile buttons */
-        @media (min-width: 769px) {
-            .mobile-buttons {
-                display: none;
-            }
-        }
     </style>
 </head>
 <body>
+    <!-- Header stays at top center -->
     <div class="header">
         <h1>HAVE A STRATEGY QUESTION?</h1>
         <h2>ASK THE MAGIC VIBES BALL</h2>
     </div>
 
-    <div class="container">
-        <!-- LEFT SIDE: Ball -->
-        <div class="left-side">
+    <!-- Main 2-column container -->
+    <div class="main-container">
+        <!-- LEFT COLUMN: Ball -->
+        <div class="left-column">
             <div id="ball">
                 <div id="triangle-container">
                     <svg id="triangle-svg" viewBox="0 0 180 156">
@@ -297,12 +297,12 @@
             </div>
         </div>
 
-        <!-- RIGHT SIDE: Text + Buttons -->
-        <div class="right-side">
+        <!-- RIGHT COLUMN: Text + Buttons (Desktop only) -->
+        <div class="right-column">
             <div class="right-text">
                 LOOKING FOR MORE ACTIONABLE<br>ANSWERS & SOLUTIONS?
             </div>
-            <div class="right-buttons">
+            <div class="desktop-buttons">
                 <a href="#" class="impact-button">
                     <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
                 </a>
@@ -312,17 +312,19 @@
             </div>
         </div>
 
-        <!-- MOBILE: Grid layout -->
-        <div class="mobile-buttons">
-            <div class="sub-headline">
+        <!-- MOBILE ONLY: Text + Buttons -->
+        <div class="mobile-only">
+            <div class="mobile-text">
                 LOOKING FOR MORE ACTIONABLE<br>ANSWERS & SOLUTIONS?
             </div>
-            <a href="#" class="impact-button">
-                <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
-            </a>
-            <a href="#" class="impact-button">
-                <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
-            </a>
+            <div class="mobile-buttons">
+                <a href="#" class="impact-button">
+                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
+                </a>
+                <a href="#" class="impact-button">
+                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
+                </a>
+            </div>
         </div>
     </div>
 
