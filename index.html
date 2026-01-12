@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fortune 8 Ball</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Hammersmith+One&family=Montserrat:wght@300;400&family=Dancing+Script&display=swap" rel="stylesheet">
+    <title>RoleCall</title>
     <style>
         * {
             margin: 0;
@@ -14,418 +11,420 @@
             box-sizing: border-box;
         }
 
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --bg-hover: #f0f1f2;
+            --border: #e1e4e8;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
+            --text-muted: #6e7781;
+            --green: #1a7f37;
+            --green-bg: #dafbe1;
+            --yellow: #bf8700;
+            --yellow-bg: #fff8c5;
+            --red: #cf222e;
+            --red-bg: #ffebe9;
+            --blue: #0969da;
+            --blue-bg: #ddf4ff;
+            --purple: #8250df;
+            --purple-bg: #f5f0ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
         body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            font-size: 14px;
+            line-height: 1.5;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: #1a1a1a;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
 
-        /* HEADER - stays at top center */
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-            width: 100%;
-        }
+        /* Existing Styles Retained */
+        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-box { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 40px; max-width: 400px; width: 100%; box-shadow: var(--shadow); }
+        .error-message { background: var(--red-bg); color: var(--red); padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
+        .app-container { display: none; flex-direction: column; min-height: 100vh; }
+        .app-container.active { display: flex; }
+        header { background: white; border-bottom: 1px solid var(--border); padding: 0; margin-bottom: 24px; }
+        .header-container { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 48px; }
+        nav { display: flex; gap: 0; align-items: center; flex: 1; }
+        .nav-tab { background: none; border: none; color: var(--text-secondary); padding: 20px 16px; cursor: pointer; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .nav-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+        .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 32px 40px 32px; width: 100%; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .btn { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .btn-secondary { background: white; color: var(--text-primary); border: 1px solid var(--border); }
+        
+        /* New Community Styles */
+        .feed-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+        .feed-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .feed-emoji { font-size: 24px; background: var(--bg-main); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .feed-user-info { flex: 1; }
+        .feed-nickname { font-weight: 600; font-size: 15px; }
+        .feed-role { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; }
+        .feed-content { font-size: 15px; color: var(--text-primary); white-space: pre-wrap; }
+        .feed-time { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+        .share-code-badge { background: var(--purple-bg); color: var(--purple); padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+        
+        .notification-banner { background: var(--blue-bg); border: 1px solid var(--blue); padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        .header h1 {
-            color: #ffffff;
-            font-size: 45px;
-            font-weight: 400;
-            font-family: 'Hammersmith One', sans-serif;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-
-        .header h2 {
-            color: #ffffff;
-            font-size: 32px;
-            font-weight: 400;
-            font-family: 'Dancing Script';
-            letter-spacing: 3px;
-            font-style: italic;
-        }
-
-        /* DESKTOP: 2-COLUMN LAYOUT */
-        .main-container {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: justify-content: center;
-            width: 100%;
-            max-width: 1100px;
-            padding: 20px;
-            gap: 60px;
-        }
-
-        .left-column {
-            flex: 0 0 auto;
-        }
-
-        .right-column {
-            flex: 0 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .right-text {
-            text-align: center;
-            color: #ffffff;
-            font-size: 18px;
-            font-weight: 300;
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: 1px;
-            line-height: 1.3;
-        }
-
-        .desktop-buttons {
-            display: flex;
-            flex-direction: row;
-            gap: 20px;
-        }
-
-        /* BALL */
-        #ball {
-            width: 550px;
-            height: 550px;
-            border-radius: 50%;
-            background-image: url('https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/8ball.png');
-            background-size: cover;
-            background-position: center;
-            cursor: pointer;
-            position: relative;
-            transition: transform 0.1s ease;
-            user-select: none;
-            overflow: hidden;
-        }
-
-        #ball:active {
-            transform: scale(0.98);
-        }
-
-        #ball.shaking {
-            animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            10% { transform: translate(-8px, -6px) rotate(-2deg); }
-            20% { transform: translate(9px, 5px) rotate(1.5deg); }
-            30% { transform: translate(-7px, 8px) rotate(-1deg); }
-            40% { transform: translate(10px, -7px) rotate(2deg); }
-            50% { transform: translate(-9px, 6px) rotate(-1.5deg); }
-            60% { transform: translate(7px, -8px) rotate(1deg); }
-            70% { transform: translate(-6px, 9px) rotate(-0.5deg); }
-            80% { transform: translate(5px, -5px) rotate(0.5deg); }
-            90% { transform: translate(-3px, 4px) rotate(-0.25deg); }
-        }
-
-        /* TRIANGLE */
-        #triangle-container {
-            position: absolute;
-            top: 45%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0) rotate(180deg);
-            opacity: 0;
-            transition: all 1s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        #triangle-container.floating {
-            transform: translate(-50%, -50%) scale(1) rotate(0deg);
-            opacity: 1;
-        }
-
-        #triangle-container.hiding {
-            transform: translate(-50%, -50%) scale(0) rotate(-180deg);
-            opacity: 0;
-            transition: all 0.6s ease;
-        }
-
-        #triangle-svg {
-            display: block;
-            width: 150px;
-            height: auto;
-            opacity: 0.85;
-        }
-
-        #message-container {
-            position: absolute;
-            top: 65%;
-            left: 50%;
-            transform: translate(-50%, -40%);
-            width: 65px;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        #message-container.visible {
-            opacity: 1;
-        }
-
-        #fortune {
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 600;
-            line-height: 1.3;
-            font-family: 'Arial Narrow', 'Roboto Condensed', 'PT Sans Narrow', 'Franklin Gothic Medium', Arial, sans-serif;
-        }
-
-        /* BUTTONS */
-        .impact-button {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .impact-button:hover {
-            transform: scale(1.05);
-        }
-
-        .impact-button img {
-            display: block;
-            width: 220px;
-            height: auto;
-        }
-
-        /* Hide mobile elements on desktop */
-        .mobile-only {
-            display: none;
-        }
-
-        /* MOBILE LAYOUT */
-        @media (max-width: 768px) {
-            .header {
-                margin-bottom: 0px;
-            }
-
-            .header h1 {
-                font-size: 28px;
-            }
-
-            .header h2 {
-                font-size: 18px;
-            }
-
-            .main-container {
-                flex-direction: column;
-                gap: 0px;
-                padding: 10px;
-            }
-
-            .left-column {
-                width: 100%;
-                display: flex;
-                justify-content: center;
-            }
-
-            /* Hide desktop right column on mobile */
-            .right-column {
-                display: none;
-            }
-
-            #ball {
-                width: 350px;
-                height: 350px;
-            }
-
-            #triangle-svg {
-                width: 95px;
-            }
-
-            #message-container {
-                width: 52px;
-            }
-
-            #fortune {
-                font-size: 9px;
-            }
-
-            /* Show mobile elements */
-            .mobile-only {
-                display: block;
-                width: 100%;
-            }
-
-            /* Mobile text */
-            .mobile-text {
-                text-align: center;
-                color: #ffffff;
-                font-size: 16px;
-                font-weight: 300;
-                font-family: 'Montserrat', sans-serif;
-                letter-spacing: 1px;
-                line-height: 1.3;
-                margin-top: 20px;
-                margin-bottom: 0px;
-            }
-
-            /* Grid layout for mobile buttons */
-            .mobile-buttons {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 0px;
-                width: 100%;
-                margin-top: 0px;
-                justify-items: center;
-            }
-
-            .mobile-buttons .impact-button img {
-                width: 100%;
-                max-width: 200px;
-            }
-        }
+        /* KPI, Tables, Modals from Original */
+        .kpi-row { display: flex; gap: 16px; margin-bottom: 32px; }
+        .kpi-card { flex: 1; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .kpi-card.green { background: var(--green-bg); }
+        .kpi-card.attention { background: var(--red-bg); }
+        .kpi-card.warning { background: var(--yellow-bg); }
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .role-card { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; cursor: pointer; border-left: 3px solid var(--green); }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 8px; padding: 24px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .form-group { margin-bottom: 16px; }
+        input, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
     </style>
 </head>
 <body>
-    <!-- Header stays at top center -->
-    <div class="header">
-        <h1>HAVE A STRATEGY QUESTION?</h1>
-        <h2>Ask the Magic Vibes Ball</h2>
+
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <h1 style="text-align:center; margin-bottom: 20px;">RoleCall</h1>
+            <div id="loginError" class="error-message" style="display:none;"></div>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required></div>
+                <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+            </form>
+            <div style="text-align: center; margin: 15px 0; color: #888;">or</div>
+            <button class="btn btn-secondary" onclick="handleGoogleLogin()" style="width: 100%;">Sign in with Google</button>
+            <p style="text-align:center; margin-top:20px; font-size:13px;">Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+        </div>
     </div>
 
-    <!-- Main 2-column container -->
-    <div class="main-container">
-        <!-- LEFT COLUMN: Ball -->
-        <div class="left-column">
-            <div id="ball">
-                <div id="triangle-container">
-                    <svg id="triangle-svg" viewBox="0 0 180 156">
-                        <polygon points="90,0 180,156 0,156" fill="#1e3a8a" />
-                    </svg>
-                    <div id="message-container">
-                        <div id="fortune"></div>
-                    </div>
+    <div id="appContainer" class="app-container">
+        <header>
+            <div class="header-container">
+                <div style="font-weight: bold; font-size: 20px;">RoleCall</div>
+                <nav>
+                    <button class="nav-tab active" onclick="showPage('dashboard', this)">Dashboard</button>
+                    <button class="nav-tab" onclick="showPage('roles', this)">Roles</button>
+                    <button class="nav-tab" onclick="showPage('community', this)">Community</button>
+                    <button class="nav-tab" onclick="showPage('weekly', this)">Weekly Stats</button>
+                    <button class="nav-tab" onclick="showPage('settings', this)">Settings</button>
+                </nav>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <button class="btn btn-secondary" onclick="openInviteModal()" style="padding: 6px 12px;">+ Invite</button>
+                    <button class="btn btn-secondary" onclick="handleLogout()" style="padding: 6px 12px;">Sign Out</button>
                 </div>
             </div>
-        </div>
+        </header>
 
-        <!-- RIGHT COLUMN: Text + Buttons (Desktop only) -->
-        <div class="right-column">
-            <div class="right-text">
-                LOOKING FOR MORE ACTIONABLE<br>ANSWERS & SOLUTIONS?
-            </div>
-            <div class="desktop-buttons">
-                <a href="#" class="impact-button">
-                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
-                </a>
-                <a href="#" class="impact-button">
-                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
-                </a>
-            </div>
-        </div>
+        <div class="container">
+            <div id="pendingInvitesSection"></div>
 
-        <!-- MOBILE ONLY: Text + Buttons -->
-        <div class="mobile-only">
-            <div class="mobile-text">
-                LOOKING FOR MORE ACTIONABLE<br>ANSWERS & SOLUTIONS?
+            <div id="dashboard" class="page active">
+                <div class="kpi-row" id="kpiCards"></div>
+                <div class="two-col">
+                    <div><h3>Needs Attention</h3><div id="needsAttention"></div></div>
+                    <div><h3>Active Roles</h3><div id="activeRoles"></div></div>
+                </div>
             </div>
-            <div class="mobile-buttons">
-                <a href="#" class="impact-button">
-                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-dropin.png" alt="Drop-in Marketing Strategy Sessions">
-                </a>
-                <a href="#" class="impact-button">
-                    <img src="https://raw.githubusercontent.com/LogicNerds/8ball/main/8ballassets/impactbutton-full.png" alt="Full Suite of Marketing Services">
-                </a>
+
+            <div id="roles" class="page">
+                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
+                    <h2>All Roles</h2>
+                    <button class="btn" onclick="openNewRoleModal()">+ New Role</button>
+                </div>
+                <div id="rolesList"></div>
+            </div>
+
+            <div id="community" class="page">
+                <div class="feed-card" style="margin-bottom: 30px;">
+                    <textarea id="postText" placeholder="What's happening in your job search?" style="height: 80px; margin-bottom: 10px;"></textarea>
+                    <button class="btn" onclick="submitPost()">Post Update</button>
+                </div>
+                <div id="communityFeed"></div>
+            </div>
+
+            <div id="settings" class="page">
+                <div class="feed-card">
+                    <h3>Your Profile</h3>
+                    <p style="margin-bottom: 15px; color: var(--text-secondary);">Your Share Code: <span id="displayShareCode" class="share-code-badge">----</span></p>
+                    <div class="form-group"><label>Nickname</label><input type="text" id="setNickname"></div>
+                    <div class="form-group"><label>Emoji</label><input type="text" id="setEmoji" placeholder="e.g. 🚀"></div>
+                    <div class="form-group"><label>Desired Role</label><input type="text" id="setDesiredRole" placeholder="e.g. Senior Frontend Dev"></div>
+                    <button class="btn" onclick="updateProfile()">Save Profile</button>
+                </div>
+                
+                <div class="feed-card">
+                    <h3>Weekly Goals</h3>
+                    <div class="form-group"><label>Weekly Applications Goal</label><input type="number" id="goalWeeklyApplications"></div>
+                    <button class="btn" onclick="saveGoals()">Save Goals</button>
+                </div>
+            </div>
+
+            <div id="weekly" class="page">
+                <h2>Weekly Stats</h2>
+                <div id="weeklyStatsContent"></div>
             </div>
         </div>
     </div>
 
+    <div id="onboardingModal" class="modal">
+        <div class="modal-content">
+            <h2>Welcome to RoleCall!</h2>
+            <p style="margin-bottom: 20px;">Let's set up your community profile.</p>
+            <div class="form-group"><label>Nickname *</label><input type="text" id="onboardNickname" required></div>
+            <div class="form-group"><label>Choose an Emoji *</label><input type="text" id="onboardEmoji" placeholder="🚀" required></div>
+            <div class="form-group"><label>What role are you looking for? *</label><input type="text" id="onboardRole" placeholder="Full Stack Developer" required></div>
+            <button class="btn" onclick="finishOnboarding()" style="width: 100%;">Start Tracking</button>
+        </div>
+    </div>
+
+    <div id="inviteModal" class="modal">
+        <div class="modal-content">
+            <h3>Connect with Someone</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Enter their 6-digit share code to send a connection request.</p>
+            <div class="form-group"><input type="text" id="inviteCodeInput" placeholder="e.g. AB12CD" style="text-transform: uppercase;"></div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn" onclick="sendInvite()">Send Request</button>
+                <button class="btn btn-secondary" onclick="closeModal('inviteModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="newRoleModal" class="modal">
+        <div class="modal-content">
+            <h3>New Role</h3>
+            <form onsubmit="saveNewRole(event)">
+                <div class="form-group"><label>Company</label><input type="text" id="newCompany" required></div>
+                <div class="form-group"><label>Title</label><input type="text" id="newTitle" required></div>
+                <div class="form-group"><label>Phase</label>
+                    <select id="newPhase">
+                        <option value="INTERESTED">Interested</option>
+                        <option value="APPLIED">Applied</option>
+                        <option value="INTERVIEWING">Interviewing</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <script>
-        const fortunes = [
-            "Trust your gut", "The stars are aligned", "Your future looks bright",
-            "Follow your own path", "Do what you love", "My sources say yes",
-            "Good things are ahead", "Pursue your passion", "You are growing",
-            "Signs point to yes", "Fuck yes!", "Try again", "Sure", "Damn straight",
-            "The vibes are good", "Fuck it!", "You do you", "You're killin' it",
-            "Hell yeah!", "Absolutely", "Yes, definitely", "Signs say yes",
-            "Sources say yes", "Outlook good", "Most likely", "You got this",
-            "Trust yourself", "Follow through", "Do it now", "Just do it",
-            "Better not tell", "Cannot predict", "Proceed with care", "Take the leap",
-            "Hold your horses", "Small wins", "Big energy", "New doors open",
-            "Good things ahead", "Keep going", "Keep the faith", "Trust your gut",
-            "The vibes align", "Stars are aligned", "Change is coming", "Embrace change",
-            "Recalibrate", "Shift your focus", "Protect your peace", "Opportunity knocks",
-            "Follow joy", "Pursue passion", "You're growing", "Level up", "Burn bright",
-            "Ride the wave", "Stay curious", "Be bold", "Aim higher", "Quiet the noise",
-            "Take a breath", "All systems go", "Full speed ahead", "Not the one",
-            "Pass for now", "Revisit later", "Why not?", "Sparks will fly",
-            "The universe nods", "Orbit aligns", "Cosmos says yes", "Galactic green light",
-            "Star-synced", "Thumbs up", "Astral thumbs up", "Make noise", "Chaos-approved",
-            "Change the game", "Go break norms", "Passion approved", "Give yourself grace",
-            "Permission granted", "Most likely", "No doubt", "Go ahead", "Maybe soon",
-            "Damn straight", "Make noise", "Wild card", "Full throttle", "Go wild",
-            "Chaos approved", "Do the math", "Trust the data", "Test and learn",
-            "Go for it", "Green light", "Make it happen", "Let's go", "Onward",
-            "Do the thing", "Game on", "Maybe later", "Ask again later", "Give it time",
-            "Could be", "Time will tell", "Watch this space", "Try again", "Hold up",
-            "Hold steady", "Revisit this", "Wait", "Not sure yet", "See how it goes",
-            "Take your time", "Reflect", "Damn right", "Test it", "Nope", "Maybe",
-            "Perhaps", "It is certain"
-        ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyDx_aXkAhFMaxIV0uRyil32qa9zbeI0Ugs",
+            authDomain: "agency-by-logic-nerds.firebaseapp.com",
+            projectId: "agency-by-logic-nerds",
+            storageBucket: "agency-by-logic-nerds.firebasestorage.app",
+            messagingSenderId: "605357652082",
+            appId: "1:605357652082:web:fd6481a8836fe096612aeb"
+        };
 
-        const ball = document.getElementById('ball');
-        const triangleContainer = document.getElementById('triangle-container');
-        const messageContainer = document.getElementById('message-container');
-        const fortuneEl = document.getElementById('fortune');
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-        let isVisible = false;
-        let lastFortuneIndex = -1;
-        let isAnimating = false;
+        let currentUser = null;
+        let userProfile = null;
+        let myFriends = [];
+        let DB = { roles: [], interactions: [], goals: {} };
 
-        function getRandomFortune() {
-            let index;
-            do {
-                index = Math.floor(Math.random() * fortunes.length);
-            } while (index === lastFortuneIndex && fortunes.length > 1);
-            
-            lastFortuneIndex = index;
-            return fortunes[index];
-        }
-
-        function showFortune() {
-            if (isAnimating) return;
-            isAnimating = true;
-
-            const fortune = getRandomFortune();
-            fortuneEl.textContent = fortune;
-            
-            ball.classList.add('shaking');
-            
-            setTimeout(() => {
-                ball.classList.remove('shaking');
-                triangleContainer.classList.remove('hiding');
-                triangleContainer.classList.add('floating');
-                
-                setTimeout(() => {
-                    messageContainer.classList.add('visible');
-                    isAnimating = false;
-                }, 800);
-            }, 600);
-            
-            isVisible = true;
-        }
-
-        function hideFortune() {
-            if (isAnimating) return;
-            
-            messageContainer.classList.remove('visible');
-            triangleContainer.classList.remove('floating');
-            triangleContainer.classList.add('hiding');
-            isVisible = false;
-        }
-
-        ball.addEventListener('click', () => {
-            if (isVisible) {
-                hideFortune();
+        // --- AUTH ---
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                currentUser = user;
+                const profileDoc = await db.collection('users').doc(user.uid).get();
+                if (!profileDoc.exists || !profileDoc.data().nickname) {
+                    openModal('onboardingModal');
+                } else {
+                    userProfile = profileDoc.data();
+                    loadAppData();
+                }
+                document.getElementById('loginContainer').style.display = 'none';
+                document.getElementById('appContainer').classList.add('active');
             } else {
-                showFortune();
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('appContainer').classList.remove('active');
             }
         });
+
+        async function finishOnboarding() {
+            const nick = document.getElementById('onboardNickname').value;
+            const emoji = document.getElementById('onboardEmoji').value;
+            const role = document.getElementById('onboardRole').value;
+            if(!nick || !emoji || !role) return alert("All fields required");
+
+            const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+            userProfile = { nickname: nick, emoji: emoji, desiredRole: role, shareCode: shareCode, uid: currentUser.uid };
+            
+            await db.collection('users').doc(currentUser.uid).set(userProfile);
+            closeModal('onboardingModal');
+            loadAppData();
+        }
+
+        async function loadAppData() {
+            document.getElementById('displayShareCode').textContent = userProfile.shareCode;
+            document.getElementById('setNickname').value = userProfile.nickname;
+            document.getElementById('setEmoji').value = userProfile.emoji;
+            document.getElementById('setDesiredRole').value = userProfile.desiredRole;
+
+            // Load Friends
+            const friendsSnap = await db.collection('friendships')
+                .where('users', 'array-contains', currentUser.uid).get();
+            myFriends = friendsSnap.docs.map(doc => doc.data().users.find(id => id !== currentUser.uid));
+            myFriends.push(currentUser.uid); // Include self to see own posts
+
+            // Load original Role data
+            const rolesSnap = await db.collection('users').doc(currentUser.uid).collection('roles').get();
+            DB.roles = rolesSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            
+            checkPendingRequests();
+            renderDashboard();
+        }
+
+        // --- COMMUNITY LOGIC ---
+        async function submitPost() {
+            const text = document.getElementById('postText').value;
+            if(!text) return;
+            await db.collection('posts').add({
+                authorUid: currentUser.uid,
+                authorNickname: userProfile.nickname,
+                authorEmoji: userProfile.emoji,
+                authorRole: userProfile.desiredRole,
+                text: text,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById('postText').value = '';
+            loadFeed();
+        }
+
+        async function loadFeed() {
+            if(myFriends.length === 0) return;
+            const feedContainer = document.getElementById('communityFeed');
+            feedContainer.innerHTML = 'Loading feed...';
+
+            const postsSnap = await db.collection('posts')
+                .where('authorUid', 'in', myFriends)
+                .orderBy('createdAt', 'desc')
+                .limit(50).get();
+
+            feedContainer.innerHTML = postsSnap.docs.map(doc => {
+                const p = doc.data();
+                const time = p.createdAt ? p.createdAt.toDate().toLocaleString() : 'Just now';
+                return `
+                    <div class="feed-card">
+                        <div class="feed-header">
+                            <div class="feed-emoji">${p.authorEmoji}</div>
+                            <div class="feed-user-info">
+                                <div class="feed-nickname">${p.authorNickname}</div>
+                                <div class="feed-role">Looking for: ${p.authorRole}</div>
+                            </div>
+                        </div>
+                        <div class="feed-content">${p.text}</div>
+                        <div class="feed-time">${time}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // --- INVITE LOGIC ---
+        async function sendInvite() {
+            const code = document.getElementById('inviteCodeInput').value.toUpperCase();
+            const userSnap = await db.collection('users').where('shareCode', '==', code).get();
+            if(userSnap.empty) return alert("Code not found");
+            
+            const targetUser = userSnap.docs[0].data();
+            await db.collection('connectionRequests').add({
+                fromUid: currentUser.uid,
+                fromNickname: userProfile.nickname,
+                toUid: targetUser.uid,
+                status: 'pending'
+            });
+            alert("Request sent!");
+            closeModal('inviteModal');
+        }
+
+        async function checkPendingRequests() {
+            const snap = await db.collection('connectionRequests')
+                .where('toUid', '==', currentUser.uid)
+                .where('status', '==', 'pending').get();
+            
+            const container = document.getElementById('pendingInvitesSection');
+            if(snap.empty) { container.innerHTML = ''; return; }
+
+            container.innerHTML = snap.docs.map(doc => {
+                const req = doc.data();
+                return `
+                    <div class="notification-banner">
+                        <span><strong>${req.fromNickname}</strong> wants to connect!</span>
+                        <div>
+                            <button class="btn" style="padding:4px 8px;" onclick="acceptInvite('${doc.id}', '${req.fromUid}')">Accept</button>
+                            <button class="btn btn-secondary" style="padding:4px 8px;" onclick="rejectInvite('${doc.id}')">Ignore</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function acceptInvite(reqId, fromUid) {
+            await db.collection('friendships').add({ users: [currentUser.uid, fromUid], createdAt: new Date() });
+            await db.collection('connectionRequests').doc(reqId).update({ status: 'accepted' });
+            loadAppData();
+        }
+
+        // --- ORIGINAL APP FUNCTIONS (Retained) ---
+        function showPage(id, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'community') loadFeed();
+            if(id === 'dashboard') renderDashboard();
+        }
+
+        function renderDashboard() {
+            const active = DB.roles.filter(r => r.phase !== 'CLOSED_NO');
+            const kpi = document.getElementById('kpiCards');
+            kpi.innerHTML = `
+                <div class="kpi-card green"><div><div style="font-size:24px; font-weight:bold;">${active.length}</div>Active Roles</div></div>
+                <div class="kpi-card warning"><div><div style="font-size:24px; font-weight:bold;">0</div>Interviews</div></div>
+            `;
+            document.getElementById('activeRoles').innerHTML = active.map(r => `
+                <div class="role-card"><strong>${r.company}</strong><br>${r.title}</div>
+            `).join('');
+        }
+
+        async function saveNewRole(e) {
+            e.preventDefault();
+            const role = {
+                company: document.getElementById('newCompany').value,
+                title: document.getElementById('newTitle').value,
+                phase: document.getElementById('newPhase').value,
+                createdAt: new Date().toISOString()
+            };
+            await db.collection('users').doc(currentUser.uid).collection('roles').add(role);
+            closeModal('newRoleModal');
+            loadAppData();
+        }
+
+        // Standard helpers
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function openInviteModal() { openModal('inviteModal'); }
+        function openNewRoleModal() { openModal('newRoleModal'); }
+        function handleLogout() { auth.signOut(); }
+        function handleLogin(e) { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); }
+        function handleGoogleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
     </script>
 </body>
 </html>
