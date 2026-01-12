@@ -3,13 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoleCall</title>
+    <title>RoleCall | Job Search & Community</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --bg-main: #f8f9fa;
@@ -43,156 +39,170 @@
             flex-direction: column;
         }
 
-        /* Existing Styles Retained */
-        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-box { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 40px; max-width: 400px; width: 100%; box-shadow: var(--shadow); }
-        .error-message { background: var(--red-bg); color: var(--red); padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; }
-        .app-container { display: none; flex-direction: column; min-height: 100vh; }
-        .app-container.active { display: flex; }
-        header { background: white; border-bottom: 1px solid var(--border); padding: 0; margin-bottom: 24px; }
-        .header-container { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 48px; }
-        nav { display: flex; gap: 0; align-items: center; flex: 1; }
-        .nav-tab { background: none; border: none; color: var(--text-secondary); padding: 20px 16px; cursor: pointer; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        /* --- UI COMPONENTS --- */
+        header { background: white; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .header-container { max-width: 1400px; margin: 0 auto; padding: 0 32px; display: flex; align-items: center; gap: 32px; height: 64px; }
+        .logo { font-size: 20px; font-weight: 700; color: var(--text-primary); text-decoration: none; }
+        
+        nav { display: flex; height: 100%; align-items: center; }
+        .nav-tab { background: none; border: none; color: var(--text-secondary); padding: 0 16px; height: 100%; cursor: pointer; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; transition: 0.2s; }
         .nav-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
         .nav-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 32px 40px 32px; width: 100%; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 24px 32px; width: 100%; }
         .page { display: none; }
         .page.active { display: block; }
-        .btn { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-        .btn-secondary { background: white; color: var(--text-primary); border: 1px solid var(--border); }
-        
-        /* New Community Styles */
-        .feed-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
-        .feed-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .feed-emoji { font-size: 24px; background: var(--bg-main); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-        .feed-user-info { flex: 1; }
-        .feed-nickname { font-weight: 600; font-size: 15px; }
-        .feed-role { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; }
-        .feed-content { font-size: 15px; color: var(--text-primary); white-space: pre-wrap; }
-        .feed-time { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
-        .share-code-badge { background: var(--purple-bg); color: var(--purple); padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
-        
-        .notification-banner { background: var(--blue-bg); border: 1px solid var(--blue); padding: 12px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
 
-        /* KPI, Tables, Modals from Original */
-        .kpi-row { display: flex; gap: 16px; margin-bottom: 32px; }
-        .kpi-card { flex: 1; border-radius: 8px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
-        .kpi-card.green { background: var(--green-bg); }
-        .kpi-card.attention { background: var(--red-bg); }
-        .kpi-card.warning { background: var(--yellow-bg); }
-        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-        .role-card { background: white; border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; cursor: pointer; border-left: 3px solid var(--green); }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        /* --- DASHBOARD & CARDS --- */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .kpi-card.attention { background: var(--red-bg); border-color: #ffcfce; }
+        .kpi-card.warning { background: var(--yellow-bg); border-color: #fbeea0; }
+        .kpi-card.success { background: var(--green-bg); border-color: #bef5cb; }
+        .kpi-val { font-size: 28px; font-weight: 700; }
+
+        .role-card { background: white; border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; cursor: pointer; transition: 0.15s; }
+        .role-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+        .role-card.status-red { border-left-color: var(--red); }
+        .role-card.status-yellow { border-left-color: var(--yellow); }
+        .role-card.status-green { border-left-color: var(--green); }
+
+        /* --- COMMUNITY FEED --- */
+        .feed-container { max-width: 700px; margin: 0 auto; }
+        .post-composer { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+        .post-composer textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 12px; resize: none; min-height: 80px; font-family: inherit; margin-bottom: 12px; }
+        
+        .feed-item { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .feed-header { display: flex; gap: 12px; margin-bottom: 12px; }
+        .feed-avatar { width: 44px; height: 44px; background: var(--bg-hover); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+        .feed-user-meta { flex: 1; }
+        .feed-nick { font-weight: 600; color: var(--text-primary); }
+        .feed-role-tag { font-size: 12px; color: var(--text-secondary); }
+        .feed-body { font-size: 15px; color: var(--text-primary); line-height: 1.6; }
+        .feed-footer { font-size: 11px; color: var(--text-muted); margin-top: 12px; border-top: 1px solid var(--bg-main); padding-top: 8px; }
+
+        /* --- FORMS & MODALS --- */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 8px; padding: 24px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 12px; padding: 32px; width: 100%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 16px; }
-        input, select, textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+        .btn-primary { background: var(--blue); color: white; }
+        .btn-primary:hover { background: #0550ae; }
+        .btn-secondary { background: white; border: 1px solid var(--border); color: var(--text-primary); }
+        
+        .notification-bar { background: var(--blue-bg); border: 1px solid var(--blue); padding: 12px 20px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+
+        .share-code-display { font-family: monospace; font-size: 18px; font-weight: 700; color: var(--purple); background: var(--purple-bg); padding: 4px 12px; border-radius: 4px; }
+        
+        /* --- LOGIN --- */
+        .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg-main); }
+        .login-card { background: white; padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: var(--shadow); }
     </style>
 </head>
 <body>
 
-    <div id="loginContainer" class="login-container">
-        <div class="login-box">
-            <h1 style="text-align:center; margin-bottom: 20px;">RoleCall</h1>
-            <div id="loginError" class="error-message" style="display:none;"></div>
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group"><label>Email</label><input type="email" id="loginEmail" required></div>
-                <div class="form-group"><label>Password</label><input type="password" id="loginPassword" required></div>
-                <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+    <div id="loginPage" class="login-screen">
+        <div class="login-card">
+            <h1 style="text-align: center; margin-bottom: 8px;">RoleCall</h1>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 32px;">Manage your search. Build your community.</p>
+            <div id="loginError" style="color: var(--red); font-size: 13px; margin-bottom: 16px; display: none;"></div>
+            <form id="loginForm" onsubmit="handleAuth(event, 'login')">
+                <div class="form-group"><label>Email</label><input type="email" id="email" required></div>
+                <div class="form-group"><label>Password</label><input type="password" id="password" required></div>
+                <button class="btn btn-primary" style="width: 100%;">Sign In</button>
             </form>
-            <div style="text-align: center; margin: 15px 0; color: #888;">or</div>
+            <div style="text-align: center; margin: 16px 0; color: var(--text-muted); font-size: 12px;">OR</div>
             <button class="btn btn-secondary" onclick="handleGoogleLogin()" style="width: 100%;">Sign in with Google</button>
-            <p style="text-align:center; margin-top:20px; font-size:13px;">Don't have an account? <a href="#" onclick="showSignup()">Sign up</a></p>
+            <p style="margin-top: 24px; text-align: center; font-size: 13px;">New here? <a href="#" onclick="toggleAuthMode()">Create account</a></p>
         </div>
     </div>
 
-    <div id="appContainer" class="app-container">
+    <div id="appContainer" style="display: none;">
         <header>
             <div class="header-container">
-                <div style="font-weight: bold; font-size: 20px;">RoleCall</div>
+                <a href="#" class="logo">RoleCall</a>
                 <nav>
-                    <button class="nav-tab active" onclick="showPage('dashboard', this)">Dashboard</button>
-                    <button class="nav-tab" onclick="showPage('roles', this)">Roles</button>
-                    <button class="nav-tab" onclick="showPage('community', this)">Community</button>
-                    <button class="nav-tab" onclick="showPage('weekly', this)">Weekly Stats</button>
-                    <button class="nav-tab" onclick="showPage('settings', this)">Settings</button>
+                    <button class="nav-tab active" onclick="switchPage('dashboard', this)">Dashboard</button>
+                    <button class="nav-tab" onclick="switchPage('roles', this)">Roles</button>
+                    <button class="nav-tab" onclick="switchPage('community', this)">Community</button>
+                    <button class="nav-tab" onclick="switchPage('settings', this)">Settings</button>
                 </nav>
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <button class="btn btn-secondary" onclick="openInviteModal()" style="padding: 6px 12px;">+ Invite</button>
-                    <button class="btn btn-secondary" onclick="handleLogout()" style="padding: 6px 12px;">Sign Out</button>
+                <div style="margin-left: auto; display: flex; gap: 12px; align-items: center;">
+                    <button class="btn btn-secondary" onclick="openModal('inviteModal')" style="padding: 6px 12px;">+ Invite</button>
+                    <button class="btn btn-secondary" onclick="handleLogout()" style="padding: 6px 12px;">Logout</button>
                 </div>
             </div>
         </header>
 
-        <div class="container">
-            <div id="pendingInvitesSection"></div>
+        <main class="container">
+            <div id="requestNotifications"></div>
 
-            <div id="dashboard" class="page active">
-                <div class="kpi-row" id="kpiCards"></div>
-                <div class="two-col">
-                    <div><h3>Needs Attention</h3><div id="needsAttention"></div></div>
-                    <div><h3>Active Roles</h3><div id="activeRoles"></div></div>
+            <div id="dashboardPage" class="page active">
+                <div class="kpi-row" id="kpiStats"></div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                    <div><h3>Needs Attention</h3><div id="needsAttentionList"></div></div>
+                    <div><h3>Upcoming Interviews</h3><div id="upcomingList"></div></div>
                 </div>
             </div>
 
-            <div id="roles" class="page">
-                <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                    <h2>All Roles</h2>
-                    <button class="btn" onclick="openNewRoleModal()">+ New Role</button>
+            <div id="rolesPage" class="page">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <h2>Job Pipeline</h2>
+                    <button class="btn btn-primary" onclick="openModal('newRoleModal')">+ Add Role</button>
                 </div>
-                <div id="rolesList"></div>
+                <div id="fullRolesList"></div>
             </div>
 
-            <div id="community" class="page">
-                <div class="feed-card" style="margin-bottom: 30px;">
-                    <textarea id="postText" placeholder="What's happening in your job search?" style="height: 80px; margin-bottom: 10px;"></textarea>
-                    <button class="btn" onclick="submitPost()">Post Update</button>
-                </div>
-                <div id="communityFeed"></div>
-            </div>
-
-            <div id="settings" class="page">
-                <div class="feed-card">
-                    <h3>Your Profile</h3>
-                    <p style="margin-bottom: 15px; color: var(--text-secondary);">Your Share Code: <span id="displayShareCode" class="share-code-badge">----</span></p>
-                    <div class="form-group"><label>Nickname</label><input type="text" id="setNickname"></div>
-                    <div class="form-group"><label>Emoji</label><input type="text" id="setEmoji" placeholder="e.g. 🚀"></div>
-                    <div class="form-group"><label>Desired Role</label><input type="text" id="setDesiredRole" placeholder="e.g. Senior Frontend Dev"></div>
-                    <button class="btn" onclick="updateProfile()">Save Profile</button>
-                </div>
-                
-                <div class="feed-card">
-                    <h3>Weekly Goals</h3>
-                    <div class="form-group"><label>Weekly Applications Goal</label><input type="number" id="goalWeeklyApplications"></div>
-                    <button class="btn" onclick="saveGoals()">Save Goals</button>
+            <div id="communityPage" class="page">
+                <div class="feed-container">
+                    <div class="post-composer">
+                        <textarea id="postInput" placeholder="Share a win or a struggle with your network..."></textarea>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="btn btn-primary" onclick="createPost()">Post Update</button>
+                        </div>
+                    </div>
+                    <div id="communityFeed"></div>
                 </div>
             </div>
 
-            <div id="weekly" class="page">
-                <h2>Weekly Stats</h2>
-                <div id="weeklyStatsContent"></div>
+            <div id="settingsPage" class="page">
+                <div class="modal-content" style="max-width: 600px; margin: 0 auto; box-shadow: var(--shadow);">
+                    <h3>Profile & Goals</h3>
+                    <div class="form-group"><label>Your Share Code</label><div class="share-code-display" id="myShareCode">------</div></div>
+                    <div class="form-group"><label>Nickname</label><input type="text" id="prefNick"></div>
+                    <div class="form-group"><label>Emoji</label><input type="text" id="prefEmoji"></div>
+                    <div class="form-group"><label>Desired Role</label><input type="text" id="prefRole"></div>
+                    <button class="btn btn-primary" onclick="saveProfileSettings()">Update Profile</button>
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid var(--border);">
+                    <button class="btn btn-secondary" onclick="exportData()">Export My Data (CSV)</button>
+                </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <div id="onboardingModal" class="modal">
         <div class="modal-content">
-            <h2>Welcome to RoleCall!</h2>
-            <p style="margin-bottom: 20px;">Let's set up your community profile.</p>
-            <div class="form-group"><label>Nickname *</label><input type="text" id="onboardNickname" required></div>
-            <div class="form-group"><label>Choose an Emoji *</label><input type="text" id="onboardEmoji" placeholder="🚀" required></div>
-            <div class="form-group"><label>What role are you looking for? *</label><input type="text" id="onboardRole" placeholder="Full Stack Developer" required></div>
-            <button class="btn" onclick="finishOnboarding()" style="width: 100%;">Start Tracking</button>
+            <h2>Welcome!</h2>
+            <p style="margin-bottom: 24px; color: var(--text-secondary);">Complete your profile to join the community feed.</p>
+            <div class="form-group"><label>Nickname</label><input type="text" id="on_nick" placeholder="e.g. JobHunter99"></div>
+            <div class="form-group"><label>Emoji Avatar</label><input type="text" id="on_emoji" placeholder="🚀"></div>
+            <div class="form-group"><label>What are you looking for?</label><input type="text" id="on_role" placeholder="e.g. Software Engineer"></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="saveOnboarding()">Enter RoleCall</button>
         </div>
     </div>
 
     <div id="inviteModal" class="modal">
         <div class="modal-content">
-            <h3>Connect with Someone</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Enter their 6-digit share code to send a connection request.</p>
-            <div class="form-group"><input type="text" id="inviteCodeInput" placeholder="e.g. AB12CD" style="text-transform: uppercase;"></div>
-            <div style="display:flex; gap:10px;">
-                <button class="btn" onclick="sendInvite()">Send Request</button>
+            <h3>Send Connection Invite</h3>
+            <div class="form-group" style="margin-top: 16px;">
+                <label>Friend's Share Code</label>
+                <input type="text" id="inviteCode" placeholder="ABC123" style="text-transform: uppercase;">
+            </div>
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn btn-primary" onclick="sendInviteRequest()">Send Invite</button>
                 <button class="btn btn-secondary" onclick="closeModal('inviteModal')">Cancel</button>
             </div>
         </div>
@@ -200,19 +210,19 @@
 
     <div id="newRoleModal" class="modal">
         <div class="modal-content">
-            <h3>New Role</h3>
-            <form onsubmit="saveNewRole(event)">
-                <div class="form-group"><label>Company</label><input type="text" id="newCompany" required></div>
-                <div class="form-group"><label>Title</label><input type="text" id="newTitle" required></div>
-                <div class="form-group"><label>Phase</label>
-                    <select id="newPhase">
-                        <option value="INTERESTED">Interested</option>
-                        <option value="APPLIED">Applied</option>
-                        <option value="INTERVIEWING">Interviewing</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn">Create</button>
-            </form>
+            <h3>Add New Role</h3>
+            <div class="form-group"><label>Company</label><input type="text" id="new_comp"></div>
+            <div class="form-group"><label>Title</label><input type="text" id="new_title"></div>
+            <div class="form-group">
+                <label>Current Phase</label>
+                <select id="new_phase">
+                    <option value="INTERESTED">Interested</option>
+                    <option value="APPLIED">Applied</option>
+                    <option value="INTERVIEWING">Interviewing</option>
+                    <option value="WAITING">Waiting</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;" onclick="saveRole()">Create Role</button>
         </div>
     </div>
 
@@ -235,196 +245,234 @@
         const db = firebase.firestore();
 
         let currentUser = null;
-        let userProfile = null;
-        let myFriends = [];
-        let DB = { roles: [], interactions: [], goals: {} };
+        let profile = null;
+        let friendsList = [];
+        let globalRoles = [];
 
-        // --- AUTH ---
+        // --- AUTH OBSERVER ---
         auth.onAuthStateChanged(async user => {
             if (user) {
                 currentUser = user;
-                const profileDoc = await db.collection('users').doc(user.uid).get();
-                if (!profileDoc.exists || !profileDoc.data().nickname) {
-                    openModal('onboardingModal');
-                } else {
-                    userProfile = profileDoc.data();
-                    loadAppData();
-                }
-                document.getElementById('loginContainer').style.display = 'none';
-                document.getElementById('appContainer').classList.add('active');
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('appContainer').style.display = 'block';
+                await loadProfile();
             } else {
-                document.getElementById('loginContainer').style.display = 'flex';
-                document.getElementById('appContainer').classList.remove('active');
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('appContainer').style.display = 'none';
             }
         });
 
-        async function finishOnboarding() {
-            const nick = document.getElementById('onboardNickname').value;
-            const emoji = document.getElementById('onboardEmoji').value;
-            const role = document.getElementById('onboardRole').value;
-            if(!nick || !emoji || !role) return alert("All fields required");
-
-            const shareCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-            userProfile = { nickname: nick, emoji: emoji, desiredRole: role, shareCode: shareCode, uid: currentUser.uid };
-            
-            await db.collection('users').doc(currentUser.uid).set(userProfile);
-            closeModal('onboardingModal');
-            loadAppData();
+        async function loadProfile() {
+            const doc = await db.collection('users').doc(currentUser.uid).get();
+            if (!doc.exists || !doc.data().nickname) {
+                openModal('onboardingModal');
+            } else {
+                profile = doc.data();
+                if (!profile.shareCode) {
+                    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    await db.collection('users').doc(currentUser.uid).update({ shareCode: code });
+                    profile.shareCode = code;
+                }
+                setupAppData();
+            }
         }
 
-        async function loadAppData() {
-            document.getElementById('displayShareCode').textContent = userProfile.shareCode;
-            document.getElementById('setNickname').value = userProfile.nickname;
-            document.getElementById('setEmoji').value = userProfile.emoji;
-            document.getElementById('setDesiredRole').value = userProfile.desiredRole;
+        async function setupAppData() {
+            document.getElementById('myShareCode').textContent = profile.shareCode;
+            document.getElementById('prefNick').value = profile.nickname;
+            document.getElementById('prefEmoji').value = profile.emoji;
+            document.getElementById('prefRole').value = profile.desiredRole;
 
-            // Load Friends
-            const friendsSnap = await db.collection('friendships')
-                .where('users', 'array-contains', currentUser.uid).get();
-            myFriends = friendsSnap.docs.map(doc => doc.data().users.find(id => id !== currentUser.uid));
-            myFriends.push(currentUser.uid); // Include self to see own posts
+            // Get Friend UIDs
+            const f1 = await db.collection('friendships').where('userA', '==', currentUser.uid).get();
+            const f2 = await db.collection('friendships').where('userB', '==', currentUser.uid).get();
+            friendsList = [currentUser.uid];
+            f1.forEach(d => friendsList.push(d.data().userB));
+            f2.forEach(d => friendsList.push(d.data().userA));
 
-            // Load original Role data
-            const rolesSnap = await db.collection('users').doc(currentUser.uid).collection('roles').get();
-            DB.roles = rolesSnap.docs.map(doc => ({id: doc.id, ...doc.data()}));
-            
-            checkPendingRequests();
-            renderDashboard();
+            loadRoles();
+            loadFeed();
+            checkInvites();
         }
 
-        // --- COMMUNITY LOGIC ---
-        async function submitPost() {
-            const text = document.getElementById('postText').value;
-            if(!text) return;
+        // --- DASHBOARD & ROLES ---
+        async function loadRoles() {
+            const snap = await db.collection('users').doc(currentUser.uid).collection('roles').get();
+            globalRoles = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            
+            const active = globalRoles.filter(r => r.phase !== 'CLOSED_NO');
+            const stale = active.filter(r => (new Date() - new Date(r.updatedAt || r.createdAt)) / 86400000 > 14);
+
+            document.getElementById('kpiStats').innerHTML = `
+                <div class="kpi-card"><div><div class="kpi-val">${active.length}</div>Active</div></div>
+                <div class="kpi-card attention"><div><div class="kpi-val">${stale.length}</div>Stale</div></div>
+            `;
+
+            const listHtml = active.map(r => `
+                <div class="role-card ${stale.includes(r) ? 'status-red' : 'status-green'}">
+                    <strong>${r.company}</strong> — ${r.title}
+                    <div style="font-size:12px; color:var(--text-muted)">Phase: ${r.phase}</div>
+                </div>
+            `).join('');
+            document.getElementById('needsAttentionList').innerHTML = listHtml;
+            document.getElementById('fullRolesList').innerHTML = listHtml;
+        }
+
+        async function saveRole() {
+            const role = {
+                company: document.getElementById('new_comp').value,
+                title: document.getElementById('new_title').value,
+                phase: document.getElementById('new_phase').value,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            await db.collection('users').doc(currentUser.uid).collection('roles').add(role);
+            closeModal('newRoleModal');
+            loadRoles();
+        }
+
+        // --- COMMUNITY FEED ---
+        async function createPost() {
+            const txt = document.getElementById('postInput').value;
+            if (!txt) return;
             await db.collection('posts').add({
                 authorUid: currentUser.uid,
-                authorNickname: userProfile.nickname,
-                authorEmoji: userProfile.emoji,
-                authorRole: userProfile.desiredRole,
-                text: text,
+                authorNick: profile.nickname,
+                authorEmoji: profile.emoji,
+                authorRole: profile.desiredRole,
+                content: txt,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            document.getElementById('postText').value = '';
+            document.getElementById('postInput').value = '';
             loadFeed();
         }
 
         async function loadFeed() {
-            if(myFriends.length === 0) return;
-            const feedContainer = document.getElementById('communityFeed');
-            feedContainer.innerHTML = 'Loading feed...';
-
-            const postsSnap = await db.collection('posts')
-                .where('authorUid', 'in', myFriends)
+            if (friendsList.length === 0) return;
+            // Note: If you get an index error in console, click the link provided by Firebase to auto-create it.
+            const snap = await db.collection('posts')
+                .where('authorUid', 'in', friendsList)
                 .orderBy('createdAt', 'desc')
-                .limit(50).get();
+                .limit(40).get();
 
-            feedContainer.innerHTML = postsSnap.docs.map(doc => {
+            document.getElementById('communityFeed').innerHTML = snap.docs.map(doc => {
                 const p = doc.data();
-                const time = p.createdAt ? p.createdAt.toDate().toLocaleString() : 'Just now';
                 return `
-                    <div class="feed-card">
+                    <div class="feed-item">
                         <div class="feed-header">
-                            <div class="feed-emoji">${p.authorEmoji}</div>
-                            <div class="feed-user-info">
-                                <div class="feed-nickname">${p.authorNickname}</div>
-                                <div class="feed-role">Looking for: ${p.authorRole}</div>
+                            <div class="feed-avatar">${p.authorEmoji}</div>
+                            <div class="feed-user-meta">
+                                <div class="feed-nick">${p.authorNick}</div>
+                                <div class="feed-role-tag">${p.authorRole}</div>
                             </div>
                         </div>
-                        <div class="feed-content">${p.text}</div>
-                        <div class="feed-time">${time}</div>
+                        <div class="feed-body">${p.content}</div>
+                        <div class="feed-footer">${p.createdAt?.toDate().toLocaleString() || 'Just now'}</div>
                     </div>
                 `;
             }).join('');
         }
 
-        // --- INVITE LOGIC ---
-        async function sendInvite() {
-            const code = document.getElementById('inviteCodeInput').value.toUpperCase();
+        // --- INVITES ---
+        async function sendInviteRequest() {
+            const code = document.getElementById('inviteCode').value.toUpperCase();
             const userSnap = await db.collection('users').where('shareCode', '==', code).get();
-            if(userSnap.empty) return alert("Code not found");
+            if (userSnap.empty) return alert("User code not found.");
             
-            const targetUser = userSnap.docs[0].data();
-            await db.collection('connectionRequests').add({
+            const target = userSnap.docs[0].data();
+            if (target.uid === currentUser.uid) return alert("Can't invite yourself!");
+
+            await db.collection('invites').add({
                 fromUid: currentUser.uid,
-                fromNickname: userProfile.nickname,
-                toUid: targetUser.uid,
+                fromNick: profile.nickname,
+                toUid: target.uid,
                 status: 'pending'
             });
-            alert("Request sent!");
+            alert("Invite sent!");
             closeModal('inviteModal');
         }
 
-        async function checkPendingRequests() {
-            const snap = await db.collection('connectionRequests')
+        async function checkInvites() {
+            const snap = await db.collection('invites')
                 .where('toUid', '==', currentUser.uid)
                 .where('status', '==', 'pending').get();
             
-            const container = document.getElementById('pendingInvitesSection');
-            if(snap.empty) { container.innerHTML = ''; return; }
-
-            container.innerHTML = snap.docs.map(doc => {
-                const req = doc.data();
+            document.getElementById('requestNotifications').innerHTML = snap.docs.map(d => {
+                const inv = d.data();
                 return `
-                    <div class="notification-banner">
-                        <span><strong>${req.fromNickname}</strong> wants to connect!</span>
+                    <div class="notification-bar">
+                        <span><strong>${inv.fromNick}</strong> wants to connect.</span>
                         <div>
-                            <button class="btn" style="padding:4px 8px;" onclick="acceptInvite('${doc.id}', '${req.fromUid}')">Accept</button>
-                            <button class="btn btn-secondary" style="padding:4px 8px;" onclick="rejectInvite('${doc.id}')">Ignore</button>
+                            <button class="btn btn-primary" onclick="acceptInvite('${d.id}', '${inv.fromUid}')">Accept</button>
+                            <button class="btn btn-secondary" onclick="ignoreInvite('${d.id}')">Ignore</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        async function acceptInvite(reqId, fromUid) {
-            await db.collection('friendships').add({ users: [currentUser.uid, fromUid], createdAt: new Date() });
-            await db.collection('connectionRequests').doc(reqId).update({ status: 'accepted' });
-            loadAppData();
+        async function acceptInvite(id, fromUid) {
+            await db.collection('friendships').add({ userA: fromUid, userB: currentUser.uid });
+            await db.collection('invites').doc(id).update({ status: 'accepted' });
+            setupAppData();
         }
 
-        // --- ORIGINAL APP FUNCTIONS (Retained) ---
-        function showPage(id, btn) {
+        // --- HELPERS ---
+        function switchPage(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            document.getElementById(pageId + 'Page').classList.add('active');
             btn.classList.add('active');
-            if(id === 'community') loadFeed();
-            if(id === 'dashboard') renderDashboard();
         }
 
-        function renderDashboard() {
-            const active = DB.roles.filter(r => r.phase !== 'CLOSED_NO');
-            const kpi = document.getElementById('kpiCards');
-            kpi.innerHTML = `
-                <div class="kpi-card green"><div><div style="font-size:24px; font-weight:bold;">${active.length}</div>Active Roles</div></div>
-                <div class="kpi-card warning"><div><div style="font-size:24px; font-weight:bold;">0</div>Interviews</div></div>
-            `;
-            document.getElementById('activeRoles').innerHTML = active.map(r => `
-                <div class="role-card"><strong>${r.company}</strong><br>${r.title}</div>
-            `).join('');
-        }
-
-        async function saveNewRole(e) {
-            e.preventDefault();
-            const role = {
-                company: document.getElementById('newCompany').value,
-                title: document.getElementById('newTitle').value,
-                phase: document.getElementById('newPhase').value,
-                createdAt: new Date().toISOString()
-            };
-            await db.collection('users').doc(currentUser.uid).collection('roles').add(role);
-            closeModal('newRoleModal');
-            loadAppData();
-        }
-
-        // Standard helpers
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function openInviteModal() { openModal('inviteModal'); }
-        function openNewRoleModal() { openModal('newRoleModal'); }
+
+        async function saveOnboarding() {
+            const nick = document.getElementById('on_nick').value;
+            const emoji = document.getElementById('on_emoji').value;
+            const role = document.getElementById('on_role').value;
+            if(!nick || !emoji) return alert("Required fields missing");
+            
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            await db.collection('users').doc(currentUser.uid).set({
+                uid: currentUser.uid,
+                nickname: nick,
+                emoji: emoji,
+                desiredRole: role,
+                shareCode: code
+            });
+            closeModal('onboardingModal');
+            loadProfile();
+        }
+
+        async function handleAuth(e, mode) {
+            e.preventDefault();
+            const em = document.getElementById('email').value;
+            const pw = document.getElementById('password').value;
+            try {
+                await auth.signInWithEmailAndPassword(em, pw);
+            } catch (err) { alert(err.message); }
+        }
+
+        function handleGoogleLogin() {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        }
+
         function handleLogout() { auth.signOut(); }
-        function handleLogin(e) { e.preventDefault(); auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value); }
-        function handleGoogleLogin() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+
+        function exportData() {
+            let csv = "Company,Title,Phase,Created\n";
+            globalRoles.forEach(r => {
+                csv += `"${r.company}","${r.title}","${r.phase}","${r.createdAt}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'my_job_search.csv');
+            a.click();
+        }
     </script>
 </body>
 </html>
