@@ -3,350 +3,1458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RoleCall | Job Search Management</title>
+    <title>Agency - Job Search Tracker</title>
     <style>
-        /* RESTORING FULL ORIGINAL CSS SPECIFICATIONS */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
-            --bg-main: #f6f8fa;
+            --bg-main: #f8f9fa;
             --bg-card: #ffffff;
-            --bg-hover: #f3f4f6;
-            --border: #d0d7de;
-            --text-primary: #1f2328;
-            --text-secondary: #656d76;
+            --bg-hover: #f0f1f2;
+            --border: #e1e4e8;
+            --text-primary: #24292f;
+            --text-secondary: #57606a;
             --text-muted: #6e7781;
-            --blue: #0969da;
-            --blue-hover: #0550ae;
-            --blue-light: #ddf4ff;
             --green: #1a7f37;
-            --green-light: #dafbe1;
+            --green-bg: #dafbe1;
+            --yellow: #bf8700;
+            --yellow-bg: #fff8c5;
             --red: #cf222e;
-            --red-light: #ffebe9;
-            --yellow: #9a6700;
-            --yellow-light: #fff8c5;
-            --purple: #8250df;
-            --purple-light: #f5f0ff;
-            --shadow-sm: 0 1px 2px rgba(31,35,40,0.04);
-            --shadow-md: 0 3px 6px rgba(140,149,159,0.15);
+            --red-bg: #ffebe9;
+            --blue: #0969da;
+            --blue-bg: #ddf4ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            background-color: var(--bg-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-main);
             color: var(--text-primary);
             font-size: 14px;
             line-height: 1.5;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* --- HEADER & NAVIGATION --- */
-        header {
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* Login Screen */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 40px;
+            max-width: 400px;
             width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .login-title {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .login-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .error-message {
+            background: var(--red-bg);
+            color: var(--red);
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .app-container {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .app-container.active {
+            display: flex;
+        }
+
+        .user-menu {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-email {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 0;
+            margin-bottom: 24px;
         }
 
         .header-container {
-            max-width: 1280px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 32px;
             display: flex;
             align-items: center;
-            height: 64px;
-            gap: 24px;
+            gap: 48px;
         }
 
-        .logo-img {
-            height: 32px;
-            width: auto;
-            cursor: pointer;
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            padding: 16px 0;
+            color: var(--text-primary);
         }
 
-        nav { display: flex; align-items: center; height: 100%; gap: 8px; }
+        nav {
+            display: flex;
+            gap: 0;
+            align-items: center;
+            flex: 1;
+        }
 
         .nav-tab {
-            background: transparent;
+            background: none;
             border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--text-primary);
+            color: var(--text-secondary);
+            padding: 20px 16px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 400;
-            height: 100%;
-            padding: 0 16px;
-            transition: border-color 0.2s, color 0.2s;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg-hover);
+        }
+
+        .nav-tab.active {
+            color: var(--blue);
+            border-bottom-color: var(--blue);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px 40px 32px;
+            width: 100%;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* KPI Cards */
+        .kpi-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            flex: 1;
+            background: var(--green-bg);
+            border-radius: 8px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
-        }
-
-        .nav-tab:hover { border-bottom-color: var(--border); color: var(--text-primary); }
-        .nav-tab.active { border-bottom-color: #fd8c73; font-weight: 600; }
-
-        .container { max-width: 1280px; margin: 0 auto; padding: 32px; }
-
-        /* --- RESTORED DASHBOARD KPI BLOCKS --- */
-        .dashboard-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 16px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .stat-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; margin-bottom: 4px; }
-        .stat-value { font-size: 24px; font-weight: 600; }
-
-        /* --- COMMUNITY FEED UI (NEW BUT MATCHED) --- */
-        .feed-container { max-width: 640px; margin: 0 auto; }
-        .composer {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-        .composer textarea {
-            width: 100%;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 12px;
-            min-height: 100px;
-            font-family: inherit;
-            resize: vertical;
-            margin-bottom: 12px;
-        }
-
-        .feed-post {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            padding: 16px;
-            margin-bottom: 16px;
-            display: flex;
+            justify-content: space-between;
             gap: 12px;
         }
-        .user-emoji {
-            width: 40px;
-            height: 40px;
-            background: var(--bg-main);
-            border-radius: 50%;
+
+        .kpi-card.attention {
+            background: var(--red-bg);
+        }
+
+        .kpi-card.warning {
+            background: var(--yellow-bg);
+        }
+
+        .kpi-card.info {
+            background: var(--blue-bg);
+        }
+
+        .kpi-number {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1;
+            color: var(--text-primary);
+        }
+
+        .kpi-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+        }
+
+        .kpi-goal {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .kpi-progress {
+            height: 3px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .kpi-progress-fill {
+            height: 100%;
+            background: var(--text-primary);
+            transition: width 0.3s;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .section-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        /* Role Cards */
+        .role-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--green);
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.15s;
+            position: relative;
+        }
+
+        .role-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+
+        .role-card.status-red {
+            border-left-color: var(--red);
+        }
+
+        .role-card.status-yellow {
+            border-left-color: var(--yellow);
+        }
+
+        .role-card.status-green {
+            border-left-color: var(--green);
+        }
+
+        .role-card.status-blue {
+            border-left-color: var(--blue);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .role-company {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
-            justify-content: center;
-            font-size: 20px;
+            gap: 8px;
         }
-        .post-content { flex: 1; }
-        .post-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-        .post-nick { font-weight: 600; color: var(--text-primary); margin-right: 8px; }
-        .post-text { font-size: 14px; line-height: 1.6; }
-        .post-date { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
 
-        /* --- MODALS & BUTTONS --- */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(31, 35, 40, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
         }
-        .modal-overlay.active { display: flex; }
-        .modal-body {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 480px;
-            padding: 32px;
-            box-shadow: var(--shadow-md);
+
+        .status-dot.red { background: var(--red); }
+        .status-dot.yellow { background: var(--yellow); }
+        .status-dot.green { background: var(--green); }
+
+        .role-title {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .role-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+
+        .role-badge.waiting { background: var(--yellow-bg); color: var(--yellow); }
+        .role-badge.interviewing { background: var(--green-bg); color: var(--green); }
+        .role-badge.applied { background: var(--bg-hover); color: var(--text-secondary); }
+        .role-badge.conversation { background: var(--blue-bg); color: var(--blue); }
+
+        .role-action {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: var(--green-bg);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .role-action.warning {
+            background: var(--red-bg);
+            color: var(--red);
+        }
+
+        .role-action.info {
+            background: var(--yellow-bg);
+            color: var(--text-primary);
+        }
+
+        .action-icon {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
         }
 
         .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 16px;
+            background: var(--blue);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
-            border-radius: 6px;
             cursor: pointer;
-            transition: 0.2s;
-            border: 1px solid rgba(27,31,36,0.15);
+            transition: all 0.15s;
         }
-        .btn-primary { background-color: var(--green); color: white; }
-        .btn-primary:hover { background-color: #1a7f37; }
-        .btn-outline { background-color: var(--bg-main); color: var(--text-primary); }
 
-        /* --- RESTORED FOOTER --- */
-        footer {
-            margin-top: auto;
-            padding: 40px 0;
-            border-top: 1px solid var(--border);
-            text-align: center;
-            color: var(--text-muted);
+        .btn:hover {
+            background: #0550ae;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        .btn-danger {
+            background: var(--red);
+        }
+
+        .btn-danger:hover {
+            background: #a40e26;
+        }
+
+        .btn-success {
+            background: var(--green);
+        }
+
+        .btn-success:hover {
+            background: #116329;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px var(--blue-bg);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-section {
+            margin-bottom: 32px;
+        }
+
+        .stats-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 14px 16px;
+        }
+
+        .stat-label {
             font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-goal {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-progress {
+            flex: 1;
+            height: 3px;
+            background: var(--bg-hover);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .stat-progress-fill {
+            height: 100%;
+            background: var(--green);
+            transition: width 0.3s;
+        }
+
+        .stat-progress-fill.complete {
+            background: var(--green);
+        }
+
+        /* Timeline */
+        .timeline {
+            margin-top: 24px;
+        }
+
+        .timeline-item {
+            border-left: 2px solid var(--border);
+            padding-left: 16px;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 0;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--blue);
+            border: 2px solid white;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .timeline-type {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--blue);
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-notes {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .contact-info {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            font-size: 13px;
+        }
+
+        .contact-item {
+            color: var(--text-secondary);
+        }
+
+        .contact-item a {
+            color: var(--blue);
+            text-decoration: none;
+        }
+
+        .contact-item a:hover {
+            text-decoration: underline;
+        }
+
+        .warning-banner {
+            background: var(--yellow-bg);
+            border: 1px solid var(--yellow);
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        /* Settings */
+        .settings-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .settings-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        .goal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        /* Footer */
+        footer {
+            background: white;
+            border-top: 1px solid var(--border);
+            padding: 16px 0;
+            position: relative;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .footer-link {
+            color: var(--blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-drawer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid var(--border);
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 999;
+        }
+
+        .footer-drawer.open {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .drawer-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 32px;
+        }
+
+        .drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .drawer-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .drawer-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .drawer-close:hover {
+            background: var(--bg-hover);
+        }
+
+        .disclaimer-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--text-primary);
+        }
+
+        .disclaimer-text p {
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .two-col {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-row {
+                flex-direction: column;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+
+        /* Community Feed Styles */
+        .feed-post {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .post-emoji {
+            font-size: 40px;
+            line-height: 1;
+        }
+
+        .post-nickname {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .post-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .post-time {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .post-content {
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .post-composer {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .notification-bell:hover {
+            background: var(--bg-hover);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--red);
+            color: white;
+            border-radius: 10px;
+            min-width: 18px;
+            height: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 0 5px;
+        }
+
+        .notifications-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            width: 400px;
+            max-height: 500px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .notifications-dropdown.active {
+            display: block;
+        }
+
+        .notification-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .profile-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .profile-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .profile-emoji-large {
+            font-size: 64px;
+            line-height: 1;
+        }
+
+        .share-code-display {
+            background: var(--bg-hover);
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-top: 12px;
         }
     </style>
 </head>
 <body>
-
-    <div id="authScreen" style="display: flex; min-height: 100vh; align-items: center; justify-content: center; background: #f6f8fa;">
-        <div style="width: 100%; max-width: 340px; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 24px;">
-                <img src="/AgencyAssets/RoleCall Logo.png" alt="RoleCall" style="height: 48px;">
-            </div>
-            <div id="loginBox" class="stat-card" style="padding: 24px;">
-                <h2 style="font-size: 24px; font-weight: 300; text-align: center; margin-bottom: 16px;">Sign in to RoleCall</h2>
-                <form onsubmit="handleAuth(event)">
-                    <div style="margin-bottom: 16px;">
-                        <label style="display:block; margin-bottom:8px;">Email address</label>
-                        <input type="email" id="authEmail" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;">
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <label style="display:block; margin-bottom:8px;">Password</label>
-                        <input type="password" id="authPass" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;">
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; padding: 10px;">Sign in</button>
-                </form>
-                <div style="margin-top: 16px; border: 1px solid var(--border); border-radius: 6px; padding: 8px; text-align: center;">
-                    <a href="#" onclick="handleGoogle()" style="text-decoration: none; color: var(--text-primary);">Sign in with Google</a>
+    <!-- Login Screen -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <img src="/AgencyAssets/RoleCall Logo.png" alt="Agency" style="width: 120px; height: auto; display: block; margin: 0 auto 24px;">
+            
+            <div id="loginError" class="error-message" style="display:none;"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="your@email.com" autocomplete="email">
                 </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn" style="flex: 1;">Sign In</button>
+                </div>
+            </form>
+            
+            <div class="divider">or</div>
+
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="handleGoogleLogin()" style="width: 100%;">
+                    Sign in with Google
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-secondary);">
+                Don't have an account? 
+                <a href="#" onclick="showSignup(); return false;" style="color: var(--blue); text-decoration: none;">Sign up</a>
             </div>
         </div>
     </div>
 
-    <div id="mainApp" style="display: none;">
+    <!-- App Container -->
+    <div id="appContainer" class="app-container">
         <header>
             <div class="header-container">
-                <img src="/AgencyAssets/RoleCall Logo.png" class="logo-img" onclick="switchPage('dashboard')">
+                <img src="/AgencyAssets/RoleCall Logo.png" alt="Agency" class="logo" style="width: 80px; height: auto; padding: 12px 0;">
                 <nav>
-                    <button class="nav-tab active" id="tab-dashboard" onclick="switchPage('dashboard')">Dashboard</button>
-                    <button class="nav-tab" id="tab-roles" onclick="switchPage('roles')">Roles</button>
-                    <button class="nav-tab" id="tab-community" onclick="switchPage('community')">Community</button>
-                    <button class="nav-tab" id="tab-settings" onclick="switchPage('settings')">Settings</button>
+                    <button class="nav-tab active" onclick="showPage('dashboard')">Dashboard</button>
+                    <button class="nav-tab" onclick="showPage('roles')">Roles</button>
+                    <button class="nav-tab" onclick="showPage('weekly')">Weekly Stats</button>
+                    <button class="nav-tab" onclick="showPage('settings')">Settings</button>
+                    <button class="nav-tab" onclick="showPage('feed')">Feed</button>
                 </nav>
-                <div style="margin-left: auto; display: flex; gap: 12px;">
-                    <button class="btn btn-outline" onclick="openModal('inviteModal')">Invite</button>
-                    <button class="btn btn-outline" onclick="signOut()">Sign out</button>
+                <div class="user-menu">
+                    <span class="user-email" id="userEmail"></span>
+                    <div class="notification-bell" id="notificationBell" onclick="toggleNotifications(event)">
+                        🔔
+                        <span class="notification-badge" id="notificationBadge">0</span>
+                        <div class="notifications-dropdown" id="notificationsDropdown">
+                            <div style="padding: 16px; border-bottom: 1px solid var(--border); font-weight: 600;">
+                                Connection Requests
+                            </div>
+                            <div id="notificationsList"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-secondary" onclick="handleLogout()">Sign Out</button>
                 </div>
             </div>
         </header>
 
-        <main class="container">
-            <div id="notifArea"></div>
+        <div style="flex: 1;">
+            <div class="container">
+            <!-- Dashboard -->
+            <div id="dashboard" class="page active">
+                <div class="kpi-row" id="kpiCards"></div>
 
-            <div id="page-dashboard" class="page-content">
-                <div class="dashboard-grid" id="statSummary">
+                <div id="upcomingInterviewsSection" style="display:none; margin-bottom: 32px;">
+                    <div class="section-header">Upcoming Interviews</div>
+                    <div id="upcomingInterviews"></div>
+                </div>
+
+                <div class="two-col">
+                    <div>
+                        <div class="section-header">Needs Attention</div>
+                        <div id="needsAttention"></div>
                     </div>
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-                    <div class="stat-card">
-                        <h3 style="margin-bottom: 16px;">Recent Activity</h3>
-                        <div id="activityFeed"></div>
-                    </div>
-                    <div class="stat-card">
-                        <h3 style="margin-bottom: 16px;">Needs Attention</h3>
-                        <div id="attentionList"></div>
+                    <div>
+                        <div class="section-header">Active Roles</div>
+                        <div id="activeRoles"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="page-roles" class="page-content" style="display: none;">
-                <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
-                    <h2>Active Applications</h2>
-                    <button class="btn btn-primary" onclick="openModal('addRoleModal')">Add Role</button>
+            <!-- Roles -->
+            <div id="roles" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">All Roles</h1>
+                    <button class="btn" onclick="openNewRoleModal()">+ New Role</button>
                 </div>
+
+                <div class="filters">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search company or title..." onkeyup="filterRoles()">
+                    <select id="phaseFilter" onchange="filterRoles()">
+                        <option value="">All Phases</option>
+                        <option value="INTERESTED">Interested</option>
+                        <option value="APPLIED">Applied</option>
+                        <option value="IN_CONVERSATION">In Conversation</option>
+                        <option value="INTERVIEWING">Interviewing</option>
+                        <option value="WAITING">Waiting</option>
+                        <option value="CLOSED_NO">Closed - No</option>
+                        <option value="CLOSED_OFFER">Closed - Offer</option>
+                    </select>
+                    <select id="sourceFilter" onchange="filterRoles()">
+                        <option value="">All Sources</option>
+                        <option value="REFERRAL">Referral</option>
+                        <option value="RECRUITER">Recruiter</option>
+                        <option value="COLD">Cold Apply</option>
+                        <option value="INBOUND">Inbound</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+
                 <div id="rolesList"></div>
             </div>
 
-            <div id="page-community" class="page-content" style="display: none;">
-                <div class="feed-container">
-                    <div class="composer">
-                        <textarea id="postInput" placeholder="What's the latest in your search?"></textarea>
-                        <div style="display:flex; justify-content:flex-end;">
-                            <button class="btn btn-primary" onclick="publishPost()">Post</button>
+            <!-- Weekly Stats -->
+            <div id="weekly" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Weekly Stats</h1>
+                    <span style="font-size: 13px; color: var(--text-secondary);">Last 7 Days</span>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Your Activity</div>
+                    <div class="stats-grid" id="weeklyActivityStats"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Pipeline Health</div>
+                    <div class="stats-grid" id="weeklyPipelineStats"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Phase Distribution</div>
+                    <div class="stats-grid" id="phaseDistribution"></div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stats-section-title">Activity Breakdown</div>
+                    <div id="effortBreakdown"></div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div id="settings" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">Goal Setting</div>
+                    <div class="settings-description">Set your weekly goals to track progress. Leave blank to hide goal tracking.</div>
+                    <div class="goal-grid">
+                        <div class="form-group">
+                            <label>Active Roles Goal</label>
+                            <input type="number" id="goalActiveRoles" min="0" placeholder="e.g., 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Applications Goal</label>
+                            <input type="number" id="goalWeeklyApplications" min="0" placeholder="e.g., 5">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Interactions Goal</label>
+                            <input type="number" id="goalWeeklyInteractions" min="0" placeholder="e.g., 10">
+                        </div>
+                        <div class="form-group">
+                            <label>Weekly Interviews Goal</label>
+                            <input type="number" id="goalWeeklyInterviews" min="0" placeholder="e.g., 2">
                         </div>
                     </div>
-                    <div id="communityFeed"></div>
+                    <div class="action-buttons">
+                        <button class="btn" onclick="saveGoals()">Save Goals</button>
+                    </div>
+                </div>
+
+<div class="settings-card">
+                    <div class="settings-title">Your Profile</div>
+                    <div class="profile-card">
+                        <div class="profile-display">
+                            <span class="profile-emoji-large" id="profileEmojiDisplay"></span>
+                            <div>
+                                <div style="font-size: 20px; font-weight: 600;" id="profileNicknameDisplay"></div>
+                                <div style="color: var(--text-secondary); margin-top: 4px;" id="profileRoleDisplay"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">Your Share Code</label>
+                            <div class="share-code-display" id="profileShareCodeDisplay"></div>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px; text-align: center;">
+                                Share this code with others to connect
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">Notification Preferences</div>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                            <input type="checkbox" id="notifyConnection" onchange="saveNotificationPrefs()">
+                            <span>Notify me when someone sends a connection request</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                            <input type="checkbox" id="notifyPost" onchange="saveNotificationPrefs()">
+                            <span>Notify me when connections post updates</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-title">Data Management</div>
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" onclick="exportData()">Export Data (CSV)</button>
+                    </div>
                 </div>
             </div>
 
-            <div id="page-settings" class="page-content" style="display: none;">
-                <div class="stat-card" style="max-width: 600px; margin: 0 auto;">
-                    <h3>Profile & Community Settings</h3>
-                    <div style="margin: 20px 0;">
-                        <p><strong>Your Share Code:</strong> <span id="myShareCode" style="font-family: monospace; background: var(--bg-hover); padding: 4px 8px; border-radius: 4px;"></span></p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <label>Nickname</label>
-                        <input type="text" id="setNick" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;">
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <label>Favorite Emoji</label>
-                        <input type="text" id="setEmoji" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;">
-                    </div>
-                    <div style="margin-bottom: 24px;">
-                        <label>Target Role</label>
-                        <input type="text" id="setTarget" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;">
-                    </div>
-                    <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
-                    <hr style="margin: 32px 0; border:0; border-top: 1px solid var(--border);">
-                    <button class="btn btn-outline" style="width: 100%;" onclick="exportData()">Export My Data (CSV)</button>
+            <!-- Feed -->
+            <div id="feed" class="page">
+                <div class="page-header">
+                    <h1 class="page-title">Community Feed</h1>
+                    <button class="btn" onclick="openModal('inviteModal')">+ Invite</button>
                 </div>
-            </div>
-        </main>
 
+                <div class="post-composer">
+                    <textarea id="postContent" placeholder="Share an update with your connections..." 
+                              style="width: 100%; border: none; resize: vertical; min-height: 100px; font-family: inherit; font-size: 14px;"
+                              oninput="updateCharCount()"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+                        <div class="char-counter" id="charCount">0/500</div>
+                        <button class="btn" onclick="createPost(document.getElementById('postContent').value)">Post</button>
+                    </div>
+                </div>
+
+                <div id="feedPosts"></div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Footer -->
         <footer>
-            <div class="container">
-                <p>&copy; 2024 RoleCall. All rights reserved. Built for job hunters, by job hunters.</p>
-                <p style="margin-top: 8px; opacity: 0.6;">RoleCall is a tool for personal job tracking. Data is stored securely in Firebase.</p>
+            <div class="footer-content">
+                <div>© 2025 Logic Nerds. All rights reserved.</div>
+                <div>
+                    <a class="footer-link" onclick="toggleDisclaimer()">Disclaimer</a>
+                </div>
             </div>
         </footer>
-    </div>
 
-    <div id="onboardingModal" class="modal-overlay">
-        <div class="modal-body">
-            <h2>Welcome to the Community!</h2>
-            <p style="margin-bottom: 24px; color: var(--text-secondary);">Choose how you'll appear in the community feed.</p>
-            <div style="margin-bottom: 16px;">
-                <label>Nickname</label>
-                <input type="text" id="obNick" placeholder="e.g. FrontendFrank">
-            </div>
-            <div style="margin-bottom: 16px;">
-                <label>Choose an Emoji</label>
-                <input type="text" id="obEmoji" placeholder="🥑">
-            </div>
-            <div style="margin-bottom: 24px;">
-                <label>Role you're chasing</label>
-                <input type="text" id="obRole" placeholder="e.g. Senior Project Manager">
-            </div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="completeOnboarding()">Start Networking</button>
-        </div>
-    </div>
-
-    <div id="inviteModal" class="modal-overlay">
-        <div class="modal-body">
-            <h3>Connect with a Peer</h3>
-            <p style="margin-bottom: 16px; font-size: 13px;">Enter a friend's share code to see each other's updates in the feed.</p>
-            <input type="text" id="inviteCode" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; text-transform:uppercase;">
-            <div style="margin-top: 24px; display:flex; gap:12px;">
-                <button class="btn btn-primary" onclick="sendInvite()">Send Invitation</button>
-                <button class="btn btn-outline" onclick="closeModal('inviteModal')">Cancel</button>
+        <!-- Footer Drawer -->
+        <div id="footerDrawer" class="footer-drawer">
+            <div class="drawer-content">
+                <div class="drawer-header">
+                    <h3 class="drawer-title">Disclaimer</h3>
+                    <button class="drawer-close" onclick="toggleDisclaimer()">&times;</button>
+                </div>
+                <div class="disclaimer-text">
+                    <p><strong>Agency by Logic Nerds</strong></p>
+                    
+                    <p>This application ("Agency") is provided by Logic Nerds on an "as-is" and "as-available" basis. Logic Nerds makes no representations or warranties of any kind, express or implied, as to the operation of this application or the information, content, or materials included herein.</p>
+                    
+                    <p>To the fullest extent permissible by applicable law, Logic Nerds disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, and non-infringement. Logic Nerds does not warrant that this application, its servers, or communications sent from Logic Nerds are free of viruses or other harmful components.</p>
+                    
+                    <p>Logic Nerds will not be liable for any damages of any kind arising from the use of this application, including but not limited to direct, indirect, incidental, punitive, and consequential damages.</p>
+                    
+                    <p>You acknowledge that all information stored within Agency is your sole responsibility. Logic Nerds is not responsible for any data loss, corruption, or unauthorized access to your information.</p>
+                    
+                    <p>By using Agency, you agree to these terms. If you do not agree, please discontinue use of the application immediately.</p>
+                    
+                    <p><em>Last Updated: January 2025</em></p>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Modals -->
+    <div id="newRoleModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">New Role</h3>
+                <button class="close-btn" onclick="closeModal('newRoleModal')">&times;</button>
+            </div>
+            <form onsubmit="saveNewRole(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Company *</label>
+                        <input type="text" id="newCompany" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="newTitle" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Salary</label>
+                    <input type="text" id="newSalary" placeholder="e.g., $120k-$150k">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Source *</label>
+                        <select id="newSource" required>
+                            <option value="REFERRAL">Referral</option>
+                            <option value="RECRUITER">Recruiter</option>
+                            <option value="COLD">Cold Apply</option>
+                            <option value="INBOUND">Inbound</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="newPhase">
+                            <option value="INTERESTED" selected>Interested</option>
+                            <option value="APPLIED">Applied</option>
+                            <option value="IN_CONVERSATION">In Conversation</option>
+                            <option value="INTERVIEWING">Interviewing</option>
+                            <option value="WAITING">Waiting</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Primary Contact</label>
+                    <input type="text" id="newContact" placeholder="e.g., Jane Smith, Hiring Manager">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="newEmail" placeholder="contact@company.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="newPhone" placeholder="(555) 123-4567">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Next Action</label>
+                        <input type="text" id="newNextAction" placeholder="e.g., Send follow-up email">
+                    </div>
+                    <div class="form-group">
+                        <label>Follow-up Date</label>
+                        <input type="date" id="newFollowUpDate">
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Create Role</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('newRoleModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="roleDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="roleDetailTitle"></h3>
+                <button class="close-btn" onclick="closeModal('roleDetailModal')">&times;</button>
+            </div>
+            <div id="roleDetailContent"></div>
+        </div>
+    </div>
+
+    <div id="interactionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add Interaction</h3>
+                <button class="close-btn" onclick="closeModal('interactionModal')">&times;</button>
+            </div>
+            <form onsubmit="saveInteraction(event)">
+                <div class="form-group">
+                    <label>Type *</label>
+                    <select id="interactionType" required>
+                        <option value="CONVERSATION">Conversation</option>
+                        <option value="INTRO_REQUEST">Intro Request</option>
+                        <option value="RESUME_SENT">Resume Sent</option>
+                        <option value="FOLLOW_UP">Follow Up</option>
+                        <option value="INTERVIEW">Interview</option>
+                        <option value="REJECTION">Rejection</option>
+                        <option value="GHOSTED">Ghosted</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" id="interviewDateGroup" style="display:none;">
+                    <label>Interview Date & Time</label>
+                    <input type="datetime-local" id="interviewDate">
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="interactionNotes" placeholder="Add any relevant details..."></textarea>
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn">Save Interaction</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('interactionModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="phaseChangeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Update Role Phase?</h3>
+                <button class="close-btn" onclick="closeModal('phaseChangeModal')">&times;</button>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 13px;">Would you like to move this role to a new phase based on this interaction?</p>
+            <div class="form-group">
+                <label>Select New Phase</label>
+                <select id="newPhaseSelect">
+                    <option value="INTERESTED">Interested</option>
+                    <option value="APPLIED">Applied</option>
+                    <option value="IN_CONVERSATION">In Conversation</option>
+                    <option value="INTERVIEWING">Interviewing</option>
+                    <option value="WAITING">Waiting</option>
+                    <option value="CLOSED_NO">Closed - No</option>
+                    <option value="CLOSED_OFFER">Closed - Offer</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button class="btn" onclick="updatePhaseFromModal()">Update Phase</button>
+                <button class="btn btn-secondary" onclick="closeModal('phaseChangeModal')">Keep Current Phase</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // CONFIG
+        // ===========================
+        // FIREBASE CONFIGURATION
+        // ===========================
         const firebaseConfig = {
             apiKey: "AIzaSyDx_aXkAhFMaxIV0uRyil32qa9zbeI0Ugs",
             authDomain: "agency-by-logic-nerds.firebaseapp.com",
@@ -355,134 +1463,1283 @@
             messagingSenderId: "605357652082",
             appId: "1:605357652082:web:fd6481a8836fe096612aeb"
         };
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        let user = null;
+        // Global state
+        let currentUser = null;
+        let DB = {
+            roles: [],
+            interactions: [],
+            goals: {
+                activeRoles: null,
+                weeklyApplications: null,
+                weeklyInteractions: null,
+                weeklyInterviews: null
+            }
+        };
+        let currentRoleId = null;
         let userProfile = null;
-        let friends = [];
+        let userConnections = [];
+        let pendingRequests = [];
 
-        // AUTH HANDLER
-        auth.onAuthStateChanged(async u => {
-            if (u) {
-                user = u;
-                document.getElementById('authScreen').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                await checkProfile();
+        const TOP_EMOJIS = [
+            '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃',
+            '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙',
+            '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔',
+            '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥',
+            '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮',
+            '🤧', '🥵', '🥶', '😎', '🤓', '🧐', '😕', '😟', '🙁', '☹️',
+            '😮', '😯', '😲', '😳', '🥺', '😦', '😧', '😨', '😰', '😥',
+            '😢', '😭', '😱', '😖', '😣', '😞', '😓', '😩', '😫', '🥱',
+            '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤏', '✌️', '🤞', '🤟',
+            '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎'
+        ];
+
+
+        // ===========================
+        // AUTHENTICATION
+        // ===========================
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                await loadAllData();
+                const hasProfile = await checkUserProfile();
+                if (hasProfile) {
+                    await loadConnections();
+                    document.getElementById('loginContainer').style.display = 'none';
+                    document.getElementById('appContainer').classList.add('active');
+                    populateEmojiSelector();
+                }
             } else {
-                document.getElementById('authScreen').style.display = 'flex';
-                document.getElementById('mainApp').style.display = 'none';
+                currentUser = null;
+                document.getElementById('loginContainer').style.display = 'flex';
+                document.getElementById('appContainer').classList.remove('active');
             }
         });
 
-        async function checkProfile() {
-            const doc = await db.collection('users').doc(user.uid).get();
-            if (!doc.exists || !doc.data().nickname) {
-                openModal('onboardingModal');
-            } else {
-                userProfile = doc.data();
-                if(!userProfile.shareCode) {
-                    const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-                    await db.collection('users').doc(user.uid).update({ shareCode: code });
-                    userProfile.shareCode = code;
-                }
-                loadAppData();
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    document.getElementById('loginError').textContent = error.message;
+                    document.getElementById('loginError').style.display = 'block';
+                });
+        }
+
+        function handleGoogleLogin() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    document.getElementById('loginError').textContent = error.message;
+                    document.getElementById('loginError').style.display = 'block';
+                });
+        }
+
+        function showSignup() {
+            const email = prompt('Enter your email address:');
+            if (!email) return;
+            
+            const password = prompt('Create a password (min 6 characters):');
+            if (!password) return;
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert('Account created successfully!');
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                auth.signOut();
             }
         }
 
-        // RESTORING ALL ORIGINAL APP LOGIC...
-        // [Logic for loading Roles, generating CSV, Calculating Stale items goes here]
-        
-        async function loadAppData() {
-            document.getElementById('myShareCode').innerText = userProfile.shareCode;
-            document.getElementById('setNick').value = userProfile.nickname;
-            document.getElementById('setEmoji').value = userProfile.emoji;
-            document.getElementById('setTarget').value = userProfile.desiredRole;
+        // ===========================
+        // FIRESTORE DATA OPERATIONS
+        // ===========================
+        async function loadAllData() {
+            if (!currentUser) return;
 
-            // Load Friends
-            const f1 = await db.collection('friendships').where('userA', '==', user.uid).get();
-            const f2 = await db.collection('friendships').where('userB', '==', user.uid).get();
-            friends = [user.uid];
-            f1.forEach(d => friends.push(d.data().userB));
-            f2.forEach(d => friends.push(d.data().userA));
+            try {
+                // Load roles
+                const rolesSnapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('roles').get();
+                DB.roles = rolesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-            renderDashboard();
-            checkNotifications();
+                // Load interactions
+                const interactionsSnapshot = await db.collection('users').doc(currentUser.uid)
+                    .collection('interactions').get();
+                DB.interactions = interactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+                // Load goals
+                const goalsDoc = await db.collection('users').doc(currentUser.uid)
+                    .collection('settings').doc('goals').get();
+                if (goalsDoc.exists) {
+                    DB.goals = goalsDoc.data();
+                }
+
+                renderDashboard();
+                loadGoals();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
         }
 
-        // COMMUNITY LOGIC
-        async function publishPost() {
-            const content = document.getElementById('postInput').value;
-            if(!content) return;
-            await db.collection('posts').add({
-                uid: user.uid,
-                nick: userProfile.nickname,
-                emoji: userProfile.emoji,
-                role: userProfile.desiredRole,
-                text: content,
-                ts: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            document.getElementById('postInput').value = '';
-            loadFeed();
-        }
-
-        async function loadFeed() {
-            const snap = await db.collection('posts')
-                .where('uid', 'in', friends)
-                .orderBy('ts', 'desc').limit(50).get();
+        async function saveRole(role) {
+            if (!currentUser) return;
             
-            document.getElementById('communityFeed').innerHTML = snap.docs.map(doc => {
-                const p = doc.data();
-                return `
-                    <div class="feed-post">
-                        <div class="user-emoji">${p.emoji}</div>
-                        <div class="post-content">
-                            <div class="post-meta">
-                                <span class="post-nick">${p.nick}</span>
-                                <span>${p.role}</span>
+            const roleData = { ...role };
+            delete roleData.id;
+            
+            try {
+                if (role.id && role.id.startsWith('role')) {
+                    const docRef = await db.collection('users').doc(currentUser.uid)
+                        .collection('roles').add(roleData);
+                    role.id = docRef.id;
+                } else {
+                    await db.collection('users').doc(currentUser.uid)
+                        .collection('roles').doc(role.id).set(roleData);
+                }
+            } catch (error) {
+                console.error('Error saving role:', error);
+                alert('Error saving role. Please try again.');
+            }
+        }
+
+        async function saveInteractionToDB(interaction) {
+            if (!currentUser) return;
+            
+            const interactionData = { ...interaction };
+            delete interactionData.id;
+            
+            try {
+                if (interaction.id && interaction.id.startsWith('int')) {
+                    const docRef = await db.collection('users').doc(currentUser.uid)
+                        .collection('interactions').add(interactionData);
+                    interaction.id = docRef.id;
+                }
+            } catch (error) {
+                console.error('Error saving interaction:', error);
+                alert('Error saving interaction. Please try again.');
+            }
+        }
+
+        async function saveGoalsToDB() {
+            if (!currentUser) return;
+            
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('settings').doc('goals').set(DB.goals);
+            } catch (error) {
+                console.error('Error saving goals:', error);
+                alert('Error saving goals. Please try again.');
+            }
+        }
+
+        // ===========================
+        // UI HELPER FUNCTIONS
+        // ===========================
+        
+        function getUpcomingInterviews() {
+            const now = new Date();
+            const upcoming = [];
+            
+            DB.interactions.forEach(interaction => {
+                if (interaction.type === 'INTERVIEW' && interaction.interviewDate) {
+                    const interviewDate = new Date(interaction.interviewDate);
+                    if (interviewDate >= now) {
+                        const role = DB.roles.find(r => r.id === interaction.roleId);
+                        if (role && !role.phase.startsWith('CLOSED')) {
+                            upcoming.push({
+                                ...interaction,
+                                role: role,
+                                date: interviewDate
+                            });
+                        }
+                    }
+                }
+            });
+            
+            return upcoming.sort((a, b) => a.date - b.date);
+        }
+
+        function getStaleStatus(role) {
+            const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+            const lastActivityAt = roleInteractions.length > 0
+                ? new Date(Math.max(...roleInteractions.map(i => new Date(i.occurredAt))))
+                : new Date(role.createdAt);
+
+            const daysSinceActivity = (new Date() - lastActivityAt) / (1000 * 60 * 60 * 24);
+
+            if (daysSinceActivity > 14) return 'RED';
+            if (!role.nextAction && role.phase !== 'WAITING') return 'YELLOW';
+            return 'GREEN';
+        }
+
+        function getLastActivityDate(role) {
+            const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+            if (roleInteractions.length === 0) return new Date(role.createdAt);
+            return new Date(Math.max(...roleInteractions.map(i => new Date(i.occurredAt))));
+        }
+
+        function formatPhase(phase) {
+            const map = {
+                'INTERESTED': 'Interested',
+                'APPLIED': 'Applied',
+                'IN_CONVERSATION': 'In Conversation',
+                'INTERVIEWING': 'Interviewing',
+                'WAITING': 'Waiting',
+                'CLOSED_NO': 'Closed - No',
+                'CLOSED_OFFER': 'Closed - Offer'
+            };
+            return map[phase] || phase;
+        }
+
+        function formatSource(source) {
+            const map = {
+                'REFERRAL': 'Referral',
+                'RECRUITER': 'Recruiter',
+                'COLD': 'Cold',
+                'INBOUND': 'Inbound',
+                'OTHER': 'Other'
+            };
+            return map[source] || source;
+        }
+
+        function formatInteractionType(type) {
+            const map = {
+                'CONVERSATION': 'Conversation',
+                'INTRO_REQUEST': 'Intro Request',
+                'RESUME_SENT': 'Resume Sent',
+                'FOLLOW_UP': 'Follow Up',
+                'INTERVIEW': 'Interview',
+                'REJECTION': 'Rejection',
+                'GHOSTED': 'Ghosted',
+                'OTHER': 'Other'
+            };
+            return map[type] || type;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString();
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleString();
+        }
+
+        function formatRelativeTime(date) {
+            const now = new Date();
+            const days = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+            if (days === 0) return 'today';
+            if (days === 1) return 'yesterday';
+            return `${days} days ago`;
+        }
+
+        // Show/hide interview date field
+        document.addEventListener('DOMContentLoaded', function() {
+            const typeSelect = document.getElementById('interactionType');
+            if (typeSelect) {
+                typeSelect.addEventListener('change', function() {
+                    const dateGroup = document.getElementById('interviewDateGroup');
+                    if (this.value === 'INTERVIEW') {
+                        dateGroup.style.display = 'block';
+                    } else {
+                        dateGroup.style.display = 'none';
+                    }
+                });
+            }
+        });
+
+        // ===========================
+        // RENDER FUNCTIONS
+        // ===========================
+        
+        function renderRoleCard(role) {
+            const staleStatus = getStaleStatus(role);
+            const lastActivity = getLastActivityDate(role);
+            
+            const hasUpcomingInterview = DB.interactions.some(i => 
+                i.roleId === role.id && 
+                i.type === 'INTERVIEW' && 
+                i.interviewDate && 
+                new Date(i.interviewDate) > new Date()
+            );
+
+            const statusClass = hasUpcomingInterview ? 'status-blue' : `status-${staleStatus.toLowerCase()}`;
+            const dotClass = staleStatus.toLowerCase();
+
+            let badgeClass = '';
+            let badgeLabel = formatPhase(role.phase);
+            
+            if (role.phase === 'WAITING') badgeClass = 'waiting';
+            else if (role.phase === 'INTERVIEWING') badgeClass = 'interviewing';
+            else if (role.phase === 'APPLIED') badgeClass = 'applied';
+            else if (role.phase === 'IN_CONVERSATION') badgeClass = 'conversation';
+
+            let actionHTML = '';
+            if (role.nextAction) {
+                actionHTML = `
+                    <div class="role-action">
+                        <span class="action-icon"></span>
+                        ${role.nextAction}
+                    </div>
+                `;
+            } else if (role.phase !== 'WAITING') {
+                actionHTML = `
+                    <div class="role-action warning">
+                        <span class="action-icon"></span>
+                        No next action set
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="role-card ${statusClass}" onclick="openRoleDetail('${role.id}')">
+                    <div class="role-header">
+                        <div class="role-company">
+                            <span class="status-dot ${dotClass}"></span>
+                            ${role.company}
+                        </div>
+                        <span class="role-badge ${badgeClass}">${badgeLabel}</span>
+                    </div>
+                    <div class="role-title">${role.title}</div>
+                    ${role.salary ? `<div style="font-size: 13px; color: var(--text-primary); font-weight: 500; margin-bottom: 4px;">${role.salary}</div>` : ''}
+                    <div class="role-meta">${formatSource(role.source)} · Last Contact: ${formatRelativeTime(lastActivity)}</div>
+                    ${actionHTML}
+                </div>
+            `;
+        }
+
+        function renderDashboard() {
+            const activeRoles = DB.roles.filter(r => !r.phase.startsWith('CLOSED'));
+            const staleRed = activeRoles.filter(r => getStaleStatus(r) === 'RED');
+            const noAction = activeRoles.filter(r => !r.nextAction && r.phase !== 'WAITING');
+            const upcomingInterviews = getUpcomingInterviews();
+
+            // KPI Cards
+            let kpiHTML = '';
+            kpiHTML += renderKPICard(activeRoles.length, 'Active Roles', 'green', DB.goals.activeRoles);
+            kpiHTML += renderKPICard(staleRed.length, 'Stale Roles', 'attention');
+            kpiHTML += renderKPICard(noAction.length, 'Needs Action', 'warning');
+            
+            document.getElementById('kpiCards').innerHTML = kpiHTML;
+
+            // Upcoming interviews
+            if (upcomingInterviews.length > 0) {
+                document.getElementById('upcomingInterviewsSection').style.display = 'block';
+                document.getElementById('upcomingInterviews').innerHTML = upcomingInterviews.map(interview => `
+                    <div class="role-card status-blue" onclick="openRoleDetail('${interview.roleId}')">
+                        <div class="role-header">
+                            <div class="role-company">
+                                <span class="status-dot green"></span>
+                                ${interview.role.company}
                             </div>
-                            <div class="post-text">${p.text}</div>
-                            <div class="post-date">${p.ts ? p.ts.toDate().toLocaleString() : 'Just now'}</div>
+                            <span class="role-badge interviewing">Interview</span>
+                        </div>
+                        <div class="role-title">${interview.role.title}</div>
+                        <div class="role-action info">
+                            📅 ${formatDateTime(interview.interviewDate)}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('upcomingInterviewsSection').style.display = 'none';
+            }
+
+            // Needs attention
+            const needsAttention = activeRoles
+                .filter(r => getStaleStatus(r) === 'RED' || getStaleStatus(r) === 'YELLOW')
+                .sort((a, b) => {
+                    const aStale = getStaleStatus(a);
+                    const bStale = getStaleStatus(b);
+                    if (aStale === bStale) return getLastActivityDate(a) - getLastActivityDate(b);
+                    return aStale === 'RED' ? -1 : 1;
+                });
+
+            document.getElementById('needsAttention').innerHTML = needsAttention.length > 0
+                ? needsAttention.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">All roles are up to date</div>';
+
+            // Active roles
+            const greenRoles = activeRoles.filter(r => getStaleStatus(r) === 'GREEN');
+            document.getElementById('activeRoles').innerHTML = greenRoles.length > 0
+                ? greenRoles.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">No active roles</div>';
+        }
+
+        function renderKPICard(value, label, type = 'info', goal = null) {
+            let goalHTML = '';
+            if (goal) {
+                const percentage = Math.min((value / goal) * 100, 100);
+                goalHTML = `
+                    <div class="kpi-goal">
+                        ${value} / ${goal}
+                        <div class="kpi-progress">
+                            <div class="kpi-progress-fill" style="width: ${percentage}%"></div>
                         </div>
                     </div>
                 `;
-            }).join('');
+            }
+
+            return `
+                <div class="kpi-card ${type}">
+                    <div class="kpi-number">${value}</div>
+                    <div>
+                        <div class="kpi-label">${label}</div>
+                        ${goalHTML}
+                    </div>
+                </div>
+            `;
         }
 
-        // UI HELPERS
-        function switchPage(id) {
-            document.querySelectorAll('.page-content').forEach(p => p.style.display = 'none');
-            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('page-' + id).style.display = 'block';
-            document.getElementById('tab-' + id).classList.add('active');
-            if(id === 'community') loadFeed();
+        function filterRoles() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const phaseFilter = document.getElementById('phaseFilter').value;
+            const sourceFilter = document.getElementById('sourceFilter').value;
+
+            let filtered = DB.roles.filter(r => {
+                const matchesSearch = r.company.toLowerCase().includes(search) || r.title.toLowerCase().includes(search);
+                const matchesPhase = !phaseFilter || r.phase === phaseFilter;
+                const matchesSource = !sourceFilter || r.source === sourceFilter;
+                return matchesSearch && matchesPhase && matchesSource;
+            });
+
+            filtered.sort((a, b) => getLastActivityDate(b) - getLastActivityDate(a));
+
+            document.getElementById('rolesList').innerHTML = filtered.length > 0
+                ? filtered.map(r => renderRoleCard(r)).join('')
+                : '<div class="empty-state">No roles match your filters</div>';
         }
 
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function renderWeeklyReport() {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-        async function completeOnboarding() {
-            const nick = document.getElementById('obNick').value;
-            const emoji = document.getElementById('obEmoji').value;
-            const role = document.getElementById('obRole').value;
-            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const weeklyInteractions = DB.interactions.filter(i => new Date(i.occurredAt) >= weekAgo);
+            const weeklyApplications = weeklyInteractions.filter(i => i.type === 'RESUME_SENT').length;
+            const weeklyInterviews = weeklyInteractions.filter(i => i.type === 'INTERVIEW').length;
+            const activeRoles = DB.roles.filter(r => !r.phase.startsWith('CLOSED')).length;
+            const touchedRoles = new Set(weeklyInteractions.map(i => i.roleId)).size;
+            const newRoles = DB.roles.filter(r => new Date(r.createdAt) >= weekAgo).length;
+            const staleRoles = DB.roles.filter(r => {
+                const lastActivity = getLastActivityDate(r);
+                return (now - lastActivity) / (1000 * 60 * 60 * 24) > 14;
+            }).length;
+
+            // Activity
+            let activityHTML = '';
+            activityHTML += renderStatCard('Total Interactions', weeklyInteractions.length, DB.goals.weeklyInteractions);
+            activityHTML += renderStatCard('Applications Sent', weeklyApplications, DB.goals.weeklyApplications);
+            activityHTML += renderStatCard('Interviews', weeklyInterviews, DB.goals.weeklyInterviews);
+            document.getElementById('weeklyActivityStats').innerHTML = activityHTML;
+
+            // Pipeline
+            let pipelineHTML = '';
+            pipelineHTML += renderStatCard('Active Roles', activeRoles, DB.goals.activeRoles);
+            pipelineHTML += renderStatCard('New Roles Added', newRoles);
+            pipelineHTML += renderStatCard('Roles Touched', touchedRoles);
+            pipelineHTML += renderStatCard('Stale Roles', staleRoles);
+            document.getElementById('weeklyPipelineStats').innerHTML = pipelineHTML;
+
+            // Phase distribution
+            const phaseCounts = {};
+            DB.roles.forEach(r => {
+                phaseCounts[r.phase] = (phaseCounts[r.phase] || 0) + 1;
+            });
+
+            document.getElementById('phaseDistribution').innerHTML = Object.entries(phaseCounts)
+                .map(([phase, count]) => renderStatCard(formatPhase(phase), count))
+                .join('');
+
+            // Activity breakdown
+            const typeCounts = {};
+            weeklyInteractions.forEach(i => {
+                typeCounts[i.type] = (typeCounts[i.type] || 0) + 1;
+            });
+
+            const topType = Object.entries(typeCounts).sort((a, b) => b[1] - a[1])[0];
+
+            document.getElementById('effortBreakdown').innerHTML = topType
+                ? renderStatCard(formatInteractionType(topType[0]), topType[1])
+                : '<div class="empty-state">No interactions this week</div>';
+        }
+
+        function renderStatCard(label, value, goal = null) {
+            let goalHTML = '';
+            if (goal) {
+                const percentage = Math.min((value / goal) * 100, 100);
+                goalHTML = `
+                    <div class="stat-goal">
+                        <span>${value} / ${goal}</span>
+                        <div class="stat-progress">
+                            <div class="stat-progress-fill ${value >= goal ? 'complete' : ''}" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="stat-card">
+                    <div class="stat-label">${label}</div>
+                    <div class="stat-value">${value}</div>
+                    ${goalHTML}
+                </div>
+            `;
+        }
+
+        // ===========================
+        // USER ACTIONS
+        // ===========================
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            event.target.classList.add('active');
+
+            if (pageId === 'dashboard') renderDashboard();
+            if (pageId === 'roles') filterRoles();
+            if (pageId === 'weekly') renderWeeklyReport();
+            if (pageId === 'settings') loadGoals();
+            if (pageId === 'feed') loadFeed();
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openNewRoleModal() {
+            document.getElementById('newCompany').value = '';
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newSalary').value = '';
+            document.getElementById('newSource').value = 'REFERRAL';
+            document.getElementById('newPhase').value = 'INTERESTED';
+            document.getElementById('newContact').value = '';
+            document.getElementById('newEmail').value = '';
+            document.getElementById('newPhone').value = '';
+            document.getElementById('newNextAction').value = '';
+            document.getElementById('newFollowUpDate').value = '';
+            openModal('newRoleModal');
+        }
+
+        async function saveNewRole(e) {
+            e.preventDefault();
+
+            const role = {
+                id: 'role' + Date.now(),
+                company: document.getElementById('newCompany').value,
+                title: document.getElementById('newTitle').value,
+                salary: document.getElementById('newSalary').value,
+                source: document.getElementById('newSource').value,
+                phase: document.getElementById('newPhase').value,
+                primaryContact: document.getElementById('newContact').value,
+                email: document.getElementById('newEmail').value,
+                phone: document.getElementById('newPhone').value,
+                nextAction: document.getElementById('newNextAction').value,
+                followUpDate: document.getElementById('newFollowUpDate').value,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+
+            DB.roles.push(role);
+            await saveRole(role);
+            closeModal('newRoleModal');
+            renderDashboard();
+            filterRoles();
+        }
+
+        function openRoleDetail(roleId) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (!role) return;
+
+            currentRoleId = roleId;
+            const roleInteractions = DB.interactions.filter(i => i.roleId === roleId)
+                .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt));
+
+            const needsWarning = !role.nextAction && role.phase !== 'WAITING';
+
+            document.getElementById('roleDetailTitle').textContent = `${role.title} at ${role.company}`;
+            document.getElementById('roleDetailContent').innerHTML = `
+                ${needsWarning ? '<div class="warning-banner">⚠️ Action Required: This role needs either a next action or should be marked as WAITING</div>' : ''}
+                
+                <div style="margin-bottom: 24px;">
+                    <div class="form-group">
+                        <label>Salary</label>
+                        <input type="text" id="editSalary" value="${role.salary || ''}" onchange="updateRoleField('${roleId}', 'salary', this.value)" placeholder="e.g., $120k-$150k">
+                    </div>
+                    <div class="form-group">
+                        <label>Phase</label>
+                        <select id="editPhase" onchange="updateRolePhase('${roleId}', this.value)">
+                            ${['INTERESTED', 'APPLIED', 'IN_CONVERSATION', 'INTERVIEWING', 'WAITING', 'CLOSED_NO', 'CLOSED_OFFER']
+                                .map(p => `<option value="${p}" ${role.phase === p ? 'selected' : ''}>${formatPhase(p)}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Primary Contact</label>
+                        <input type="text" id="editContact" value="${role.primaryContact || ''}" onchange="updateRoleField('${roleId}', 'primaryContact', this.value)">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="editEmail" value="${role.email || ''}" onchange="updateRoleField('${roleId}', 'email', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" id="editPhone" value="${role.phone || ''}" onchange="updateRoleField('${roleId}', 'phone', this.value)">
+                        </div>
+                    </div>
+                    ${(role.email || role.phone) ? `
+                        <div class="contact-info">
+                            ${role.email ? `<div class="contact-item">📧 <a href="mailto:${role.email}">${role.email}</a></div>` : ''}
+                            ${role.phone ? `<div class="contact-item">📞 <a href="tel:${role.phone}">${role.phone}</a></div>` : ''}
+                        </div>
+                    ` : ''}
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Next Action</label>
+                            <input type="text" id="editNextAction" value="${role.nextAction || ''}" onchange="updateRoleField('${roleId}', 'nextAction', this.value)">
+                        </div>
+                        <div class="form-group">
+                            <label>Follow-up Date</label>
+                            <input type="date" id="editFollowUpDate" value="${role.followUpDate || ''}" onchange="updateRoleField('${roleId}', 'followUpDate', this.value)">
+                        </div>
+                    </div>
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+                        <strong>Source:</strong> ${formatSource(role.source)} · 
+                        <strong>Created:</strong> ${formatDate(role.createdAt)}
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn" onclick="openInteractionModal('${roleId}')">+ Add Interaction</button>
+                    <button class="btn btn-danger" onclick="closeRole('${roleId}', 'CLOSED_NO')">Close - No</button>
+                    <button class="btn btn-success" onclick="closeRole('${roleId}', 'CLOSED_OFFER')">Close - Offer</button>
+                </div>
+
+                <div class="timeline">
+                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 16px;">Interaction History</h4>
+                    ${roleInteractions.length > 0 ? roleInteractions.map(i => `
+                        <div class="timeline-item">
+                            <div class="timeline-header">
+                                <span class="timeline-type">${formatInteractionType(i.type)}</span>
+                                <span class="timeline-date">${i.interviewDate && i.type === 'INTERVIEW' ? formatDateTime(i.interviewDate) : formatDate(i.occurredAt)}</span>
+                            </div>
+                            ${i.notes ? `<div class="timeline-notes">${i.notes}</div>` : '<div class="timeline-notes" style="opacity: 0.6;">No notes</div>'}
+                        </div>
+                    `).join('') : '<div style="color: var(--text-secondary); font-style: italic; padding: 16px; text-align: center; background: var(--bg-hover); border-radius: 6px;">No interactions yet</div>'}
+                </div>
+            `;
+
+            openModal('roleDetailModal');
+        }
+
+        async function updateRolePhase(roleId, newPhase) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role) {
+                role.phase = newPhase;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        async function updateRoleField(roleId, field, value) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role) {
+                role[field] = value;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        async function closeRole(roleId, closedPhase) {
+            const role = DB.roles.find(r => r.id === roleId);
+            if (role && confirm(`Mark "${role.title} at ${role.company}" as ${formatPhase(closedPhase)}?`)) {
+                role.phase = closedPhase;
+                role.updatedAt = new Date().toISOString();
+                await saveRole(role);
+                closeModal('roleDetailModal');
+                renderDashboard();
+                filterRoles();
+            }
+        }
+
+        function openInteractionModal(roleId) {
+            currentRoleId = roleId;
+            document.getElementById('interactionType').value = 'CONVERSATION';
+            document.getElementById('interactionNotes').value = '';
+            document.getElementById('interviewDate').value = '';
+            document.getElementById('interviewDateGroup').style.display = 'none';
+            closeModal('roleDetailModal');
+            openModal('interactionModal');
+        }
+
+        async function saveInteraction(e) {
+            e.preventDefault();
+
+            const type = document.getElementById('interactionType').value;
+            const interaction = {
+                id: 'int' + Date.now(),
+                roleId: currentRoleId,
+                type: type,
+                notes: document.getElementById('interactionNotes').value,
+                occurredAt: new Date().toISOString()
+            };
+
+            if (type === 'INTERVIEW') {
+                interaction.interviewDate = document.getElementById('interviewDate').value;
+            }
+
+            DB.interactions.push(interaction);
+            await saveInteractionToDB(interaction);
+            closeModal('interactionModal');
+
+            const role = DB.roles.find(r => r.id === currentRoleId);
+            document.getElementById('newPhaseSelect').value = role.phase;
+            openModal('phaseChangeModal');
+        }
+
+        async function updatePhaseFromModal() {
+            const newPhase = document.getElementById('newPhaseSelect').value;
+            await updateRolePhase(currentRoleId, newPhase);
+            closeModal('phaseChangeModal');
+            openRoleDetail(currentRoleId);
+        }
+
+        function loadGoals() {
+            document.getElementById('goalActiveRoles').value = DB.goals.activeRoles || '';
+            document.getElementById('goalWeeklyApplications').value = DB.goals.weeklyApplications || '';
+            document.getElementById('goalWeeklyInteractions').value = DB.goals.weeklyInteractions || '';
+            document.getElementById('goalWeeklyInterviews').value = DB.goals.weeklyInterviews || '';
             
-            const data = { nickname: nick, emoji: emoji, desiredRole: role, shareCode: code, uid: user.uid };
-            await db.collection('users').doc(user.uid).set(data);
-            userProfile = data;
-            closeModal('onboardingModal');
-            loadAppData();
+            if (userProfile) {
+                document.getElementById('profileEmojiDisplay').textContent = userProfile.emoji;
+                document.getElementById('profileNicknameDisplay').textContent = userProfile.nickname;
+                document.getElementById('profileRoleDisplay').textContent = 'Looking for: ' + userProfile.desiredRole;
+                document.getElementById('profileShareCodeDisplay').textContent = userProfile.shareCode;
+                document.getElementById('notifyConnection').checked = userProfile.notifyOnConnection !== false;
+                document.getElementById('notifyPost').checked = userProfile.notifyOnPost !== false;
+            }
         }
 
-        // AUTH ACTIONS
-        function signOut() { auth.signOut(); }
-        function handleAuth(e) { e.preventDefault(); /* Original sign-in logic */ }
-        function handleGoogle() { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+        async function saveGoals() {
+            DB.goals.activeRoles = parseInt(document.getElementById('goalActiveRoles').value) || null;
+            DB.goals.weeklyApplications = parseInt(document.getElementById('goalWeeklyApplications').value) || null;
+            DB.goals.weeklyInteractions = parseInt(document.getElementById('goalWeeklyInteractions').value) || null;
+            DB.goals.weeklyInterviews = parseInt(document.getElementById('goalWeeklyInterviews').value) || null;
+            
+            await saveGoalsToDB();
+            alert('Goals saved successfully!');
+            renderDashboard();
+        }
 
         function exportData() {
-            // Full 50-line CSV logic restored
-            console.log("Exporting CSV...");
+            // Build CSV with one row per interaction, role fields repeated
+            const rows = [];
+            
+            // Header row
+            const headers = [
+                'Company',
+                'Title',
+                'Salary',
+                'Source',
+                'Phase',
+                'Primary Contact',
+                'Email',
+                'Phone',
+                'Next Action',
+                'Follow-up Date',
+                'Role Created',
+                'Role Updated',
+                'Interaction Type',
+                'Interaction Date',
+                'Interview Date/Time',
+                'Interaction Notes'
+            ];
+            rows.push(headers.join(','));
+            
+            // Data rows - one per interaction
+            DB.roles.forEach(role => {
+                const roleInteractions = DB.interactions.filter(i => i.roleId === role.id);
+                
+                // If role has no interactions, still export one row
+                if (roleInteractions.length === 0) {
+                    const row = [
+                        escapeCsv(role.company),
+                        escapeCsv(role.title),
+                        escapeCsv(role.salary || ''),
+                        role.source,
+                        role.phase,
+                        escapeCsv(role.primaryContact || ''),
+                        escapeCsv(role.email || ''),
+                        escapeCsv(role.phone || ''),
+                        escapeCsv(role.nextAction || ''),
+                        role.followUpDate || '',
+                        formatDate(role.createdAt),
+                        formatDate(role.updatedAt),
+                        '', // No interaction type
+                        '', // No interaction date
+                        '', // No interview date
+                        ''  // No notes
+                    ];
+                    rows.push(row.join(','));
+                } else {
+                    // One row per interaction
+                    roleInteractions.forEach(interaction => {
+                        const row = [
+                            escapeCsv(role.company),
+                            escapeCsv(role.title),
+                            escapeCsv(role.salary || ''),
+                            role.source,
+                            role.phase,
+                            escapeCsv(role.primaryContact || ''),
+                            escapeCsv(role.email || ''),
+                            escapeCsv(role.phone || ''),
+                            escapeCsv(role.nextAction || ''),
+                            role.followUpDate || '',
+                            formatDate(role.createdAt),
+                            formatDate(role.updatedAt),
+                            interaction.type,
+                            formatDate(interaction.occurredAt),
+                            interaction.interviewDate ? formatDateTime(interaction.interviewDate) : '',
+                            escapeCsv(interaction.notes || '')
+                        ];
+                        rows.push(row.join(','));
+                    });
+                }
+            });
+            
+            const csv = rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'agency-export.csv';
+            link.click();
+        }
+        
+        function escapeCsv(str) {
+            if (!str) return '';
+            str = String(str);
+            // If contains comma, quote, or newline, wrap in quotes and escape quotes
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        }
+
+
+        // ===========================
+        // COMMUNITY FEED FUNCTIONS
+        // ===========================
+        
+        function generateShareCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        async function isShareCodeUnique(code) {
+            const snapshot = await db.collection('profiles')
+                .where('shareCode', '==', code)
+                .limit(1)
+                .get();
+            return snapshot.empty;
+        }
+
+        async function generateUniqueShareCode() {
+            let code = generateShareCode();
+            let attempts = 0;
+            while (!(await isShareCodeUnique(code)) && attempts < 10) {
+                code = generateShareCode();
+                attempts++;
+            }
+            return code;
+        }
+
+        async function checkUserProfile() {
+            if (!currentUser) return false;
+            
+            const profileDoc = await db.collection('profiles').doc(currentUser.uid).get();
+            if (!profileDoc.exists) {
+                openProfileOnboarding();
+                return false;
+            }
+            
+            userProfile = profileDoc.data();
+            return true;
+        }
+
+        async function saveUserProfile(nickname, emoji, desiredRole) {
+            if (!currentUser) return;
+            
+            const shareCode = await generateUniqueShareCode();
+            const profile = {
+                userId: currentUser.uid,
+                nickname: nickname,
+                emoji: emoji,
+                desiredRole: desiredRole,
+                shareCode: shareCode,
+                notifyOnConnection: true,
+                notifyOnPost: true,
+                createdAt: new Date().toISOString()
+            };
+            
+            await db.collection('profiles').doc(currentUser.uid).set(profile);
+            userProfile = profile;
+            closeModal('profileOnboardingModal');
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('appContainer').classList.add('active');
+            await loadConnections();
+        }
+
+        async function loadConnections() {
+            if (!currentUser) return;
+            
+            const sentSnapshot = await db.collection('connections')
+                .where('fromUserId', '==', currentUser.uid)
+                .get();
+            
+            const receivedSnapshot = await db.collection('connections')
+                .where('toUserId', '==', currentUser.uid)
+                .get();
+            
+            userConnections = [];
+            pendingRequests = [];
+            
+            sentSnapshot.docs.forEach(doc => {
+                const conn = { id: doc.id, ...doc.data() };
+                if (conn.status === 'approved') {
+                    userConnections.push(conn.toUserId);
+                }
+            });
+            
+            receivedSnapshot.docs.forEach(doc => {
+                const conn = { id: doc.id, ...doc.data() };
+                if (conn.status === 'approved') {
+                    userConnections.push(conn.fromUserId);
+                } else if (conn.status === 'pending') {
+                    pendingRequests.push(conn);
+                }
+            });
+            
+            updateNotificationBadge();
+        }
+
+        async function sendConnectionRequest(shareCode) {
+            if (!currentUser) return;
+            
+            shareCode = shareCode.trim().toUpperCase();
+            if (!shareCode) {
+                alert('Please enter a Share Code');
+                return;
+            }
+            
+            const profileSnapshot = await db.collection('profiles')
+                .where('shareCode', '==', shareCode)
+                .limit(1)
+                .get();
+            
+            if (profileSnapshot.empty) {
+                alert('No user found with that Share Code');
+                return;
+            }
+            
+            const targetProfile = profileSnapshot.docs[0];
+            const targetUserId = targetProfile.data().userId;
+            
+            if (targetUserId === currentUser.uid) {
+                alert('You cannot connect with yourself');
+                return;
+            }
+            
+            const existingConnection = await db.collection('connections')
+                .where('fromUserId', '==', currentUser.uid)
+                .where('toUserId', '==', targetUserId)
+                .limit(1)
+                .get();
+            
+            if (!existingConnection.empty) {
+                alert('Connection request already sent');
+                return;
+            }
+            
+            const reverseConnection = await db.collection('connections')
+                .where('fromUserId', '==', targetUserId)
+                .where('toUserId', '==', currentUser.uid)
+                .limit(1)
+                .get();
+            
+            if (!reverseConnection.empty) {
+                alert('This user has already sent you a request');
+                return;
+            }
+            
+            await db.collection('connections').add({
+                fromUserId: currentUser.uid,
+                toUserId: targetUserId,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            });
+            
+            alert('Connection request sent!');
+            document.getElementById('inviteShareCode').value = '';
+            closeModal('inviteModal');
+        }
+
+        async function approveConnection(connectionId) {
+            await db.collection('connections').doc(connectionId).update({
+                status: 'approved',
+                approvedAt: new Date().toISOString()
+            });
+            
+            await loadConnections();
+            renderNotifications();
+            alert('Connection approved!');
+        }
+
+        async function rejectConnection(connectionId) {
+            await db.collection('connections').doc(connectionId).delete();
+            await loadConnections();
+            renderNotifications();
+        }
+
+        async function createPost(content) {
+            if (!currentUser || !userProfile) return;
+            
+            content = content.trim();
+            if (!content) {
+                alert('Post cannot be empty');
+                return;
+            }
+            
+            if (content.length > 500) {
+                alert('Post cannot exceed 500 characters');
+                return;
+            }
+            
+            await db.collection('posts').add({
+                authorId: currentUser.uid,
+                content: content,
+                createdAt: new Date().toISOString()
+            });
+            
+            document.getElementById('postContent').value = '';
+            updateCharCount();
+            await loadFeed();
+            alert('Posted!');
+        }
+
+        async function loadFeed() {
+            if (!currentUser) return;
+            
+            if (userConnections.length === 0) {
+                document.getElementById('feedPosts').innerHTML = `
+                    <div class="empty-state">
+                        <p style="margin-bottom: 12px;">Your feed is empty</p>
+                        <p style="font-size: 13px; color: var(--text-secondary);">Connect with others to see their posts here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const connectionBatch = userConnections.slice(0, 10);
+            
+            const postsSnapshot = await db.collection('posts')
+                .where('authorId', 'in', connectionBatch)
+                .orderBy('createdAt', 'desc')
+                .limit(50)
+                .get();
+            
+            const posts = [];
+            
+            for (const doc of postsSnapshot.docs) {
+                const post = { id: doc.id, ...doc.data() };
+                const authorProfile = await db.collection('profiles').doc(post.authorId).get();
+                if (authorProfile.exists) {
+                    post.author = authorProfile.data();
+                    posts.push(post);
+                }
+            }
+            
+            posts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            
+            renderFeed(posts);
+        }
+
+        function renderFeed(posts) {
+            const feedHTML = posts.map(post => `
+                <div class="feed-post">
+                    <div class="post-header">
+                        <div class="post-author">
+                            <span class="post-emoji">${post.author.emoji}</span>
+                            <div>
+                                <div class="post-nickname">${post.author.nickname}</div>
+                                <div class="post-role">Looking for: ${post.author.desiredRole}</div>
+                            </div>
+                        </div>
+                        <div class="post-time">${formatRelativeTime(new Date(post.createdAt))}</div>
+                    </div>
+                    <div class="post-content">${escapeHtml(post.content)}</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('feedPosts').innerHTML = feedHTML || `
+                <div class="empty-state">No posts yet</div>
+            `;
+        }
+
+        async function renderNotifications() {
+            if (pendingRequests.length === 0) {
+                document.getElementById('notificationsList').innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px;">
+                        No pending requests
+                    </div>
+                `;
+                return;
+            }
+            
+            const notificationsHTML = [];
+            
+            for (const request of pendingRequests) {
+                const fromProfile = await db.collection('profiles').doc(request.fromUserId).get();
+                if (fromProfile.exists) {
+                    const profile = fromProfile.data();
+                    
+                    notificationsHTML.push(`
+                        <div class="notification-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <span style="font-size: 32px;">${profile.emoji}</span>
+                                <div>
+                                    <div style="font-weight: 600;">${profile.nickname}</div>
+                                    <div style="font-size: 12px; color: var(--text-secondary);">Looking for: ${profile.desiredRole}</div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-success" onclick="approveConnection('${request.id}')">Accept</button>
+                                <button class="btn btn-secondary" onclick="rejectConnection('${request.id}')">Decline</button>
+                            </div>
+                        </div>
+                    `);
+                }
+            }
+            
+            document.getElementById('notificationsList').innerHTML = notificationsHTML.join('');
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (pendingRequests.length > 0) {
+                badge.textContent = pendingRequests.length;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function updateCharCount() {
+            const content = document.getElementById('postContent').value;
+            const count = content.length;
+            const counter = document.getElementById('charCount');
+            counter.textContent = `${count}/500`;
+            
+            if (count > 500) {
+                counter.style.color = 'var(--red)';
+            } else if (count > 450) {
+                counter.style.color = 'var(--yellow)';
+            } else {
+                counter.style.color = 'var(--text-secondary)';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function toggleNotifications(event) {
+            event.stopPropagation();
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('active');
+            if (dropdown.classList.contains('active')) {
+                renderNotifications();
+            }
+        }
+
+        function openProfileOnboarding() {
+            openModal('profileOnboardingModal');
+        }
+
+        function populateEmojiSelector() {
+            const select = document.getElementById('onboardEmoji');
+            if (!select || select.children.length > 1) return;
+            
+            TOP_EMOJIS.forEach(emoji => {
+                const option = document.createElement('option');
+                option.value = emoji;
+                option.textContent = emoji;
+                option.style.fontSize = '20px';
+                select.appendChild(option);
+            });
+        }
+
+        async function saveNotificationPrefs() {
+            if (!currentUser) return;
+            
+            await db.collection('profiles').doc(currentUser.uid).update({
+                notifyOnConnection: document.getElementById('notifyConnection').checked,
+                notifyOnPost: document.getElementById('notifyPost').checked
+            });
+            
+            userProfile.notifyOnConnection = document.getElementById('notifyConnection').checked;
+            userProfile.notifyOnPost = document.getElementById('notifyPost').checked;
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notificationsDropdown');
+            const bell = document.getElementById('notificationBell');
+            
+            if (dropdown && bell && !dropdown.contains(e.target) && !bell.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function toggleDisclaimer() {
+            const drawer = document.getElementById('footerDrawer');
+            drawer.classList.toggle('open');
         }
     </script>
 </body>
